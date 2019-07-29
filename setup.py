@@ -9,13 +9,17 @@ from setuptools import setup, find_packages
 # python setup.py bdist_egg generate a egg file
 # Release information about eway
 
-version = "5.0.16"
+version = "5.0.18"
+name = "appPublic"
 description = "appPublic"
 author = "yumoqing"
-email = "yumoqing@icloud.com"
+email = "yumoqing@gmail.com"
 
 packages=find_packages()
 package_data = {}
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 setup(
     name="appPublic",
@@ -32,12 +36,12 @@ setup(
     package_data=package_data,
     keywords = [
     ],
+	url="https://github.com/yumoqing/appPublic",
+	long_description=long_description,
+	long_description_content_type="text/markdown",
     classifiers = [
-        'Development Status :: 3 - Alpha',
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Framework :: utils',
+        'Programming Language :: Python :: 3',
+		'License :: OSI Approved :: MIT License',
     ],
-	platforms= 'any'
 )
