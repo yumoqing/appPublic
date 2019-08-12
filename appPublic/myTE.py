@@ -24,7 +24,6 @@ class MyTemplateEngine:
 			'type':type,
 			'isNone':isNone,
 			'len':len,
-			'recordFind':recordFind,
 			'render':self.render,
 			'renders':self.renders,
 			'ArgsConvert':ArgsConvert,
@@ -36,13 +35,12 @@ class MyTemplateEngine:
 		}
 		self.env.globals.update(denv)
 
-	def setGlobal(self,dic):
-		self.env.globals.update(dic)
+	def set(self,k,v):
+		self.env.globals.update({k:v})
 		
 	def _render(self,template,data):
-		self._setEnv()
 		uRet = template.render(**data)
-		return uRet.encode(self.out_coding)
+		return uRet
 		
 	def renders(self,tmplstring,data):
 		def getGlobal():
@@ -59,7 +57,6 @@ class MyTemplateEngine:
 		return self._render(template,data)
 
 	def renderJsonFile(self,tmplfile,jsonfile):
-		f = codecs.open(jsonfile,"r",self.file_coding)
-		data = json.load(f)
-		f.close()
-		return self.render(tmplfile,data)
+		with codecs.open(jsonfile,"r",self.file_coding) as f:
+			data = json.load(f)
+			return self.render(tmplfile,data)
