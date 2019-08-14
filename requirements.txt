@@ -1,0 +1,6 @@
+xlrd
+xlwt
+psutil
+ujson
+numpy
+cryptography
