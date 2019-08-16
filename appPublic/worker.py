@@ -1,4 +1,4 @@
-
+import random
 import asyncio
 from functools import wraps
 
@@ -10,8 +10,8 @@ def asyncCall(func):
 	return wraped_func
 
 class Worker:
-	def __init__(self,max=50):
-		self.semaphore = asyncio.Semaphore(max)
+	def __init__(self,maxtask=50):
+		self.semaphore = asyncio.Semaphore(maxtask)
 
 	async def __call__(self,callee,*args,**kw):
 		async with self.semaphore:
@@ -28,8 +28,9 @@ class Worker:
 
 if __name__ == '__main__':
 	async def hello(cnt,greeting):
-		await asyncio.sleep(1)
-		print(cnt,greeting)
+		t = random.randint(1,10)
+		await asyncio.sleep(t)
+		print(cnt,'cost ',t,'seconds to',greeting)
 
 	
 	async def run():
