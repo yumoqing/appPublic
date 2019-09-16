@@ -57,11 +57,14 @@ class RSA:
 			)
 			return key
 	
+	def publickeyFromText(self,text):
+		public_key_bytes = bytes(text,encoding='utf8')
+		return serialization.load_pem_public_key(data=public_key_bytes,backend=default_backend())
+
 	def read_publickey(self,fname):
 		with open(fname,'r') as f:
-			public_key_pem_export = f.read()
-			public_key_pem_export = bytes(public_key_pem_export,encoding='utf8') if not isinstance(public_key_pem_export, bytes) else public_key_pem_export
-			return serialization.load_pem_public_key(data=public_key_pem_export,backend=default_backend())
+			text = f.read()
+			return self.publickeyFromText(text)
 			
 	def create_privatekey(self):
 		return rsa.generate_private_key(
