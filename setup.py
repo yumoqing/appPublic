@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 # python setup.py bdist_egg generate a egg file
 # Release information about eway
 
-version = "5.0.18"
+version = "5.1.1"
 name = "appPublic"
 description = "appPublic"
 author = "yumoqing"

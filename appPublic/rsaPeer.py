@@ -1,6 +1,9 @@
 from appPublic.rsa import RSA
 from appPublic.rc4 import RC4
-import ujson as json
+try:
+	import ujson as json
+except:
+	import json
 import random
 
 class DeliverPacket:

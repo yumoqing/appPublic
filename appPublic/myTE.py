@@ -1,6 +1,9 @@
 import os
 import sys
-import appPublic.myjson as json
+try:
+	import ujson as json
+except:
+	import json
 from jinja2 import Environment,FileSystemLoader
 import codecs
 from appPublic.argsConvert import ArgsConvert
@@ -39,6 +42,7 @@ class MyTemplateEngine:
 		self.env.globals.update({k:v})
 		
 	def _render(self,template,data):
+		# print('**********template=',template,'**data=',data,'type_data=',type(data),'************')
 		uRet = template.render(**data)
 		return uRet
 		

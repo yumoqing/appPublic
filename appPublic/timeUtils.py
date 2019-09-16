@@ -53,7 +53,7 @@ def monthMaxDay(y,m):
 def date2str(dt=None):
 	if dt is None:
 		dt = curDatetime()
-	return '%04d-%02d-%-02d' % (dt.year,dt.month,dt.day)
+	return '%04d-%02d-%02d' % (dt.year,dt.month,dt.day)
 
 def time2str(dt):
 	return '%02d:%02d:%02d' % (dt.hour,dt,minute,dt.second)

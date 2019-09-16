@@ -32,14 +32,17 @@ class RSA:
 			text = pem.decode('utf8')
 			f.write(text)
 
-	def write_publickey(self,public_key,fname):
+	def publickeyText(self,public_key):
 		pem = public_key.public_bytes(
 			encoding=serialization.Encoding.PEM,
 			format=serialization.PublicFormat.SubjectPublicKeyInfo
 		)
-
+		text = pem.decode('utf8')
+		return text
+		
+	def write_publickey(self,public_key,fname):
+		text = self.publickeyText(public_key)
 		with open(fname,'w') as f:
-			text = pem.decode('utf8')
 			f.write(text)
 		
 	def read_privatekey(self,fname,password=None):
