@@ -1,5 +1,6 @@
 import time
 import datetime
+# from .Singleton import SingletonDecorator
 
 BEGIN=0
 END=1
@@ -7,32 +8,25 @@ END=1
 def datetimeStr(t):
 	dt = time.localtime(t)
 	return time.strftime('%Y-%m-%d %H:%M:%S',dt)
-	
+
 class TimeCost:
-	def __init__(self):
-		self.timerecord = {}
+	timerecord = {}
+	def __init__(self,name):
+		self.name = name
 	
-	def begin(self,name):
-		self.timerecord[name] = {'begin':time.time()}
+	def __enter__(self):
+		self.begin_time = time.time()
 	
-	def end(self,name):
-		if name not in self.timerecord.keys():
-			self.timerecord[name] = {'begin':time.time()}
-		d = self.timerecord[name]
-		d['end'] = time.time()
-	
+	def __exit__(self):
+		self.end_time = time.time()
+		d = self.timerecord.get('name',[])
+		d.append(self.end_time - self.begin_time)
+
 	def getTimeCost(self,name):
-		return self.timerecord[name]['end'] - self.timerecord[name]['begin']
+		x = self.timerecord.get('name',[])
+		return len(x), sum(x), sum(x)/len(x)
 	
-	def getTimeBegin(self,name):
-		return self.timerecord[name]['begin']
-	
-	def getTimeEnd(self,name):
-		return self.timerecord[name]['end']
-		
 	def show(self):
 		for name in self.timerecord.keys():
-			d = self.timerecord[name]
-			cost = d['end'] - d['begin']
-			print(name,'begin:',datetimeStr(d['begin']),'end:',datetimeStr(d['end']),'cost:%f seconds' % cost)
+			print(name, * self.getTimeCost(name))
 
