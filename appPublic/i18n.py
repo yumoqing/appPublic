@@ -3,6 +3,7 @@ import codecs
 from appPublic.folderUtils import _mkdir
 from appPublic.Singleton import SingletonDecorator
 from appPublic.folderUtils import ProgramPath
+from appPublic.jsonConfig import getConfig
 import threading
 import time
 
@@ -67,6 +68,7 @@ class MiniI18N:
 		self.coding = coding
 		self.id = 'i18n'
 		self.langTextDict = {}
+		self.messages = {}
 		self.setupMiniI18N()
 		self.missed_pt = None
 		self.translated_pt = None
@@ -76,6 +78,9 @@ class MiniI18N:
 		self.clientLangs = {}
 		self.languageMapping = {}
 		self.timeout = 600
+		config = getConfig()
+		for l1,l in config.langMapping.items():
+			self.setLangMapping(l1,l)
 	
 	def __call__(self,msg,lang=None) :
 		"""
@@ -126,7 +131,12 @@ class MiniI18N:
 				f = codecs.open(p1,'r',self.coding)
 				textDict = getTextDictFromLines(f.readlines())
 				f.close()
+				d = {}
+				if dir in self.langTextDict :
+					d = self.langTextDict[dir]
 				self.langTextDict[dir] = textDict
+				for i in textDict.keys() :
+					self.messages[i] = ''
 				
 		self._p_changed = 1
 		
