@@ -2,12 +2,22 @@
 from appPublic.dictObject import DictObject
 
 def keyMapping(dic,mappingtab,keepmiss=True):
+	"""
+	keyMapping mappingtab
+	{
+		"a1":"b1",
+		"a2":'b2",
+		...
+	}
+	"an" is key in dic
+	"bn" is key in result dictionary
+	"""
 	ret = {}
 	keys = [ k for k in dic.keys()]
 	if not keepmiss:
 		keys = [ k for k in dic.keys() if k in mappingtab.keys() ]
 	[ ret.update({mappingtab.get(k,k):dic[k]}) for k in keys ]
-	return DictObject(**ret)
+	return ret
 
 
 def valueMapping(dic,mappingtab):
