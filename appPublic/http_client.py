@@ -7,15 +7,16 @@ class InsufficientPrivilege(Exception):
 	pass
 
 class HTTPError(Exception):
-	def __init__(self,resp_code):
+	def __init__(self,resp_code,url=None):
 		self.resp_code = resp_code
+		self.url = url
 		Exception.__init__(self)
 
 	def __expr__(self):
-		return f'Exception:return code={self.resp_code}'
+		return f'{self.url}:{self.resp_code}'
 
 	def __str__(self):
-		return f'Exception:return code={self.resp_code}'
+		return f'{self.url}:{self.resp_code}'
 
 hostsessions = {}
 
