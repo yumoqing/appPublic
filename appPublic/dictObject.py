@@ -11,36 +11,69 @@ def multiDict2Dict(md):
 			ns[k] = [ov,v]
 	return ns
 
-class DictObject(dict):
-	def __init__(self,**args):
-		try:
-			dict.__init__(self,**args)
-			for k,v in self.items():
-				self.__setattr__(k,self._DOitem(v))
-		except Exception as e:
-			print("DictObject.__init__()",e,args)
-			raise e
+class DictObject:
+	def __init__(self,**kw):
+		self.__dict__['kwargs'] = {}
+		for k,v in kw.items():
+			self.kwargs.update({k:self.__DOitem(v)})
+	
+	def __getattr__(self, name):
+		x = self.__dict__.get(name,None)
+		if x:
+			return x
+
+		b = self.__dict__.get('kwargs',None)
+		if not b:
+			print('Error:kwargs not in __dict__')
+			raise Exception('kwargs not in __dict__')
+		return b.get(name,None)
+
+	def __getitem__(self,name):
+		x = self.__dict__.get(name,None)
+		if x is not None:
+			return x
+
+		x  = self.kwargs.get(name,None)
+		return x
+		
+	def __setitem__(self,name,value):
+		self.kwargs[name] = value
+
+	def __delattr__(self,name):
+		self.kwargs.pop(name)
+
+	def copy(self):
+		return self.kwargs.copy()
+
+	def update(self,d):
+		self.kwargs.update(d)
+
+	def keys(self):
+		return self.kwargs.keys()
+
+	def items(self):
+		return self.kwargs.items()
+
 	@classmethod
 	def isMe(self,name):
 		return name == 'DictObject'
 		
-	def __getattr__(self,name):
-		if name in self:
-			return self[name]
-		return None
-	
-	def __setattr__(self,name,v):
-		self[name] = v
-	
-	def _DOArray(self,a):
-		b = [ self._DOitem(i) for i in a ]
+	def __DOArray(self,a):
+		b = [ self.__DOitem(i) for i in a ]
 		return b
 	
-	def _DOitem(self, i):
-		if type(i) is type({}):
-			return DictObject(**i)
+	def __DOitem(self, i):
+		if isinstance(i,DictObject):
+			return i
+		if isinstance(i,dict):
+			try:
+				d = DictObject(**i)
+				return d
+			except Exception as e:
+				print("****************",i,"*******dictObject.py")
+				raise e
 		if type(i) is type([]):
-			return self._DOArray(i)
+			return self.__DOArray(i)
 		return i
 
 def dictObjectFactory(_klassName__,**kwargs):
