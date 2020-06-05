@@ -39,8 +39,11 @@ class DictObject:
 	def __setitem__(self,name,value):
 		self.kwargs[name] = value
 
-	def __delattr__(self,name):
+	def __delitem__(self,name):
 		self.kwargs.pop(name)
+
+	def get(self,name,dv=None):
+		return self.kwargs.get(name,dv)
 
 	def copy(self):
 		return self.kwargs.copy()

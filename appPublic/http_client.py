@@ -20,9 +20,10 @@ class HTTPError(Exception):
 
 hostsessions = {}
 
-class HttpClient:
+class Http_Client:
 	def __init__(self):
 		self.s = requests.Session()
+		self.s.verify = False
 		
 	def url2domain(self,url):
 		parts = url.split('/')[:3]
@@ -64,7 +65,7 @@ class HttpClient:
 			print('Error', url, method, 
 					params, resp.status_code,
 					type(resp.status_code))
-			raise HTTPError(resp.status_code)
+			raise HTTPError(resp.status_code,url)
 		return resp
 
 	def webcall(self,url,method="GET",
