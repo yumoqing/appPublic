@@ -13,19 +13,19 @@ def multiDict2Dict(md):
 
 class DictObject:
 	def __init__(self,**kw):
-		self.__dict__['kwargs'] = {}
+		self.__dict__['_kwargs'] = {}
 		for k,v in kw.items():
-			self.kwargs.update({k:self.__DOitem(v)})
+			self._kwargs.update({k:self.__DOitem(v)})
 	
 	def __getattr__(self, name):
 		x = self.__dict__.get(name,None)
 		if x:
 			return x
 
-		b = self.__dict__.get('kwargs',None)
+		b = self.__dict__.get('_kwargs',None)
 		if not b:
-			print('Error:kwargs not in __dict__')
-			raise Exception('kwargs not in __dict__')
+			print('Error:_kwargs not in __dict__')
+			raise Exception('_kwargs not in __dict__')
 		return b.get(name,None)
 
 	def __getitem__(self,name):
@@ -33,29 +33,29 @@ class DictObject:
 		if x is not None:
 			return x
 
-		x  = self.kwargs.get(name,None)
+		x  = self._kwargs.get(name,None)
 		return x
 		
 	def __setitem__(self,name,value):
-		self.kwargs[name] = value
+		self._kwargs[name] = value
 
 	def __delitem__(self,name):
-		self.kwargs.pop(name)
+		self._kwargs.pop(name)
 
 	def get(self,name,dv=None):
-		return self.kwargs.get(name,dv)
+		return self._kwargs.get(name,dv)
 
 	def copy(self):
-		return self.kwargs.copy()
+		return self._kwargs.copy()
 
 	def update(self,d):
-		self.kwargs.update(d)
+		self._kwargs.update(d)
 
 	def keys(self):
-		return self.kwargs.keys()
+		return self._kwargs.keys()
 
 	def items(self):
-		return self.kwargs.items()
+		return self._kwargs.items()
 
 	@classmethod
 	def isMe(self,name):
