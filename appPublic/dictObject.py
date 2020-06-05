@@ -57,6 +57,12 @@ class DictObject:
 	def items(self):
 		return self._kwargs.items()
 
+	def __expr__(self):
+		return self._kwargs.__expr__()
+		
+	def __str__(self):
+		return self._kwargs.__str__()
+
 	@classmethod
 	def isMe(self,name):
 		return name == 'DictObject'
