@@ -28,6 +28,9 @@ class DictObject:
 			raise Exception('_kwargs not in __dict__')
 		return b.get(name,None)
 
+	def __setattr__(self,name,value):
+		self.__setitem__(name,value)
+
 	def __getitem__(self,name):
 		x = self.__dict__.get(name,None)
 		if x is not None:
