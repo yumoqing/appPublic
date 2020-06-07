@@ -41,7 +41,7 @@ class JsonObject(DictObject):
 			a = ac.convert(a,NS)
 		a['__jsonholder__'] = jsonholder
 		a['NS'] = NS
-		DictObject.__init__(self,a)
+		DictObject.__init__(self,**a)
 	
 @SingletonDecorator
 class JsonConfig(JsonObject):
