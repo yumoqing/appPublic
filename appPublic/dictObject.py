@@ -14,7 +14,6 @@ def multiDict2Dict(md):
 class DictObject:
 	def __init__(self,**kw):
 		self.__dict__['_kwargs'] = {}
-		print('__dict__=',self.__dict__)
 		for k,v in kw.items():
 			self._kwargs.update({k:self.__DOitem(v)})
 	
