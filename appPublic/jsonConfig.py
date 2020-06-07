@@ -22,8 +22,6 @@ class JsonObject(DictObject):
 	JsonObject class load json from a json file
 	"""
 	def __init__(self,jsonholder,keytype='ansi',NS=None):
-		self.__jsonholder__ = jsonholder
-		self.NS = NS
 		jhtype = type(jsonholder)
 		if jhtype == type("") or jhtype == type(u''):
 			f = open(jsonholder,'r')
@@ -38,10 +36,12 @@ class JsonObject(DictObject):
 			if type(jsonholder) == type(""):
 				f.close()
 		
-		if self.NS is not None:
+		if NS is not None:
 			ac = ArgsConvert('$[',']$')
 			a = ac.convert(a,self.NS)
-		DictObject.__init__(self,**a)
+		a['__jsonholder__'] = jsonholder
+		a['NS'] = NS
+		DictObject.__init__(self,a)
 	
 @SingletonDecorator
 class JsonConfig(JsonObject):
