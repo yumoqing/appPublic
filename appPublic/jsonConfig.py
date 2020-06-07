@@ -38,7 +38,7 @@ class JsonObject(DictObject):
 		
 		if NS is not None:
 			ac = ArgsConvert('$[',']$')
-			a = ac.convert(a,self.NS)
+			a = ac.convert(a,NS)
 		a['__jsonholder__'] = jsonholder
 		a['NS'] = NS
 		DictObject.__init__(self,a)
