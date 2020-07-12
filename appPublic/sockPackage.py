@@ -3,10 +3,6 @@ import time
 import threading
 import sys
 import socket
-from mylog import mylog
-
-def logit(s) :
-	mylog(__file__ + ':' + s)
 
 def get_free_local_addr():
 	with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
@@ -56,7 +52,7 @@ class SocketServer(threading.Thread) :
 			self.sock.listen(self.max_c)
 			self.ready = True
 		except Exception as e:
-			logit('setSocketServer() Error:%s\nhost=%s,port=%d' % (e,self.host,self.port))
+			print('setSocketServer() Error:%s\nhost=%s,port=%d' % (e,self.host,self.port))
 			pass
 
 	def run(self) :
@@ -104,7 +100,7 @@ class SocketClient :
 			self.ready = True
 		except Exception as e:
 			self.ready = False
-			logit('Socket connect error,%s\nhost=%s,port=%s' % (e,self.host,self.port))
+			print('Socket connect error,%s\nhost=%s,port=%s' % (e,self.host,self.port))
 			raise SocketClientError('connect error')
 
 	def read(self,size) :
@@ -112,14 +108,14 @@ class SocketClient :
 			data = self.sock.recv(size)
 			return data
 		except Exception as e:
-			logit('recv error,%s' % e)
+			print('recv error,%s' % e)
 			raise SocketClientError('recv error')
 
 	def write(self,data) :
 		try :
 			self.sock.send(data)
 		except Exception as e:
-			logit('recv error,%s' % e)
+			print('recv error,%s' % e)
 			raise SocketClientError('send error')
 	
 	def close(self) :
