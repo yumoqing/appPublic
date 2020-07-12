@@ -2,11 +2,17 @@ import os
 import time
 import threading
 import sys
-from socket import AF_INET,SOCK_STREAM,socket
+import socket
 from mylog import mylog
 
 def logit(s) :
 	mylog(__file__ + ':' + s)
+
+def get_free_local_addr():
+	with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+		s.connect(("8.8.8.8", 80))
+		return s.getsockname()
+		# return (ip,port)
 
 class background(threading.Thread) :
         def __init__(self,func,kw) :
@@ -45,7 +51,7 @@ class SocketServer(threading.Thread) :
 
 	def setSocketServer(self) :
 		try :
-			self.sock = socket(AF_INET,SOCK_STREAM)
+			self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 			self.sock.bind((self.host,self.port))
 			self.sock.listen(self.max_c)
 			self.ready = True
@@ -93,7 +99,7 @@ class SocketClient :
 
 	def connect(self) :
 		try :
-			self.sock = socket(AF_INET,SOCK_STREAM)
+			self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 			self.sock.connect((self.host,self.port))
 			self.ready = True
 		except Exception as e:
