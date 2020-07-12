@@ -38,6 +38,7 @@ class DictObject(dict):
 		if isinstance(i,DictObject):
 			return i
 		if isinstance(i,dict):
+			i = {k:v for k,v in i.items() if isinstance(k,str)}
 			try:
 				d = DictObject(**i)
 				return d
