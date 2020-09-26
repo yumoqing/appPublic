@@ -12,6 +12,10 @@ def curDateString():
 	d = curDatetime()
 	return '%04d-%02d-%02d' %(d.year,d.month,d.day)
 	
+def curTimeString():
+	d = curDatetime()
+	return '%02d:%02d:%02d' %(d.hour,d.minute,d.second)
+	
 def timestampstr():
 	d = curDatetime()
 	return '%04d-%02d-%02d %02d:%02d:%02d.%03d' % (d.year,
