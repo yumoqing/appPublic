@@ -6,11 +6,23 @@ import stat
 import os.path
 import platform
 import time
+import random
 """
 import win32api
 """
 import sys
 
+
+def filepoolpath(root):
+		paths=[191,193,197,199,97]
+		v = random.randint(0,9999999)
+		path = os.path.abspath(os.path.join(root,
+					str(v % paths[0]),
+					str(v % paths[1]),
+					str(v % paths[2]),
+					str(v % paths[3]),
+					str(v % paths[4])))
+		return path
 
 def startsWith(text,s):
 	return text[:len(s)] == s
