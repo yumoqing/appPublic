@@ -12,8 +12,8 @@ class BroadcastServer:
 		self.udpSerSock = socket(AF_INET, SOCK_DGRAM)
 		# 设置阻塞
 		self.udpSerSock.setblocking(1)
-		# 设置超时时间 0.5s
-		# self.udpSerSock.settimeout(0.5)
+		# 设置超时时间 1s
+		# self.udpSerSock.settimeout(1)
 		self.udpSerSock.bind(('' ,port))
 		self.run_flg = True
 		self.thread = Background(self.run)
@@ -40,9 +40,9 @@ def find_players(port):
 	host = get_free_local_addr()[0]
 	udpCliSock = socket(AF_INET, SOCK_DGRAM)
 	#设置阻塞
-	udpCliSock.setblocking(2)
+	#udpCliSock.setblocking(2)
 	#设置超时时间
-	udpCliSock.settimeout(2)
+	udpCliSock.settimeout(0.5)
 	udpCliSock.bind(('', 0))  
 	udpCliSock.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)  
 	print('find_players() port=',port)
