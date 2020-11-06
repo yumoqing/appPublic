@@ -23,6 +23,18 @@ class DictObject:
 	def update(self,kw):
 		self.__kw.update(kw)
 
+	def clear(self):
+		return self._kw.clear()
+
+	def get(self,name,default):
+		return self._kw.get(name,default)
+
+	def pop(self):
+		return self.__kw.pop()
+
+	def popitem(self,g):
+		return self.__kw.popitem(g)
+
 	def items(self):
 		return self.__kw.items()
 
