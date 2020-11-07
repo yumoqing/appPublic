@@ -14,17 +14,40 @@ def multiDict2Dict(md):
 			ns[k] = [ov,v]
 	return ns
 
-class DictObject(dict):
+class DictObject:
 	def __init__(self,**kw):
-		dict.__init__(self, **kw)
+		self.__kw = {}
 		for k,v in kw.items():
 			self.update({k:self.__DOitem(v)})
 	
-	def __getattr__(self, name):
-		return self.get(name,None)
+	def update(self,kw):
+		self.__kw.update(kw)
 
-	def __setattr__(self,name,value):
-		self[name] = value
+	def items(self):
+		return self.__kw.items()
+
+	def keys(self):
+		return self.__kw.keys()
+
+	def values(self):
+		return self.__kw.values()
+
+	def __getitem__(self,name):
+		return self.__kw.get(name)
+	
+	def __setitem__(self,name,value):
+		self.__kw[name] = value
+
+	def __getattr__(self, name):
+		if self.__kw.get(name):
+			return self.__kw.get(name)
+		return None
+
+	def __str__(self):
+		return str(self.__kw)
+
+	def __expr__(self):
+		return self.__kw.__expr__()
 
 	@classmethod
 	def isMe(self,name):
@@ -45,7 +68,7 @@ class DictObject(dict):
 			except Exception as e:
 				print("****************",i,"*******dictObject.py")
 				raise e
-		if type(i) is type([]):
+		if type(i) == type([]) or type(i) == type(()) :
 			return self.__DOArray(i)
 		return i
 
