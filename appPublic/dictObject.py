@@ -49,6 +49,9 @@ class DictObject:
 	def __expr__(self):
 		return self.__kw.__expr__()
 
+	def copy(self):
+		return {k:v for k,v in self.__kw.items()}
+
 	@classmethod
 	def isMe(self,name):
 		return name == 'DictObject'
