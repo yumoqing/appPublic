@@ -16,53 +16,89 @@ def multiDict2Dict(md):
 
 class DictObject:
 	def __init__(self,**kw):
-		self.__kw = {}
+		self.org_keys__ = []
+		self.org_keys__ = [ k for k in self.__dict__.keys()]
 		for k,v in kw.items():
 			self.update({k:self.__DOitem(v)})
 	
-	def update(self,kw):
-		self.__kw.update(kw)
-
-	def clear(self):
-		return self._kw.clear()
-
-	def get(self,name,default):
-		return self._kw.get(name,default)
-
-	def pop(self):
-		return self.__kw.pop()
-
-	def popitem(self,g):
-		return self.__kw.popitem(g)
-
-	def items(self):
-		return self.__kw.items()
-
-	def keys(self):
-		return self.__kw.keys()
-
-	def values(self):
-		return self.__kw.values()
-
-	def __getitem__(self,name):
-		return self.__kw.get(name)
-	
-	def __setitem__(self,name,value):
-		self.__kw[name] = value
-
-	def __getattr__(self, name):
-		if self.__kw.get(name):
-			return self.__kw.get(name)
+	def __getattr__(self,name):
+		if name in self._addon().keys():
+			return self.__getitem__(name)
 		return None
 
+	def update(self,kw):
+		self.__dict__.update(kw)
+
+	def _addon(self):
+		ks = [ k for k in self.__dict__.keys() if k not in self.org_keys__]
+		return {k:v for k,v in self.__dict__.items() if k in ks}
+
+	def clear(self):
+		for k in self._addon().keys():
+			self.__dict__.pop(k)
+
+	def get(self,name,default=None):
+		return self._addon().get(name,default)
+
+	def pop(self,k,default=None):
+		return self.__dict__.pop(k,default)
+
+	def popitem(self):
+		return self.__dict__.popitem()
+
+	def items(self):
+		return self._addon().items()
+
+	def keys(self):
+		return self._addon().keys()
+
+	def values(self):
+		return self._addon().values()
+
+	def __getitem__(self,name):
+		return self._addon().get(name)
+	
+	def __setitem__(self,name,value):
+		self.__dict__[name] = value
+
 	def __str__(self):
-		return str(self.__kw)
+		return str(self._addon())
 
 	def __expr__(self):
-		return self.__kw.__expr__()
+		return self.addon().__expr__()
 
 	def copy(self):
-		return {k:v for k,v in self.__kw.items()}
+		return {k:v for k,v in self._addon().items()}
+
+	def to_dict(self):
+		d = self._addon()
+		return self.dict_to_dict(d)
+
+	def dict_to_dict(self,dic):
+		d = {}	
+		for k,v in dic:
+			if isisntance(v,DictObject):
+				d[k] = v.to_dict()
+			elif isinstance(v,dict):
+				d[k] = self.dict_to_dict(v)
+			elif isinsance(v,list):
+				d[k] = self.array_to_dict(v)
+			else:
+				d[k] = v
+		return d
+
+	def array_to_dict(self,v):
+		r = []
+		for i in v:
+			if isinstance(i,list):
+				r.append(self.array_to_dict(i))
+			elif isinstance(i,dict):
+				r.append(self.dict_to_dict(i))
+			elif isinstance(i,DictObject):
+				r.append(i.to_dict())
+			else:
+				r.append(i)
+		return r
 
 	@classmethod
 	def isMe(self,name):
@@ -89,7 +125,9 @@ class DictObject:
 
 class DictObjectEncoder(JSONEncoder):
 	def default(self, o):
-		return o._kwargs
+		return o._addon()
+		
+	
 
 def dictObjectFactory(_klassName__,**kwargs):
 	def findSubclass(_klassName__,klass):
