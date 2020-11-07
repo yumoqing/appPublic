@@ -22,9 +22,7 @@ class BroadcastServer:
 	def run(self):
 		while self.run_flg:
 			try:
-				print('broadcast_server():wait for receive...',self.port)
 				data, addr = self.udpSerSock.recvfrom(BUFSIZE)
-				print('broadcast_server(), received=',data,addr)
 				ret = json.dumps(self.info).encode('utf-8')
 				self.udpSerSock.sendto(ret, addr)
 			except Exception as e:
@@ -45,7 +43,6 @@ def find_players(port):
 	udpCliSock.settimeout(0.5)
 	udpCliSock.bind(('', 0))  
 	udpCliSock.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)  
-	print('find_players() port=',port)
 	udpCliSock.sendto(b'findplayers', ('255.255.255.255',port))
 	players = []
 	while True:
@@ -57,7 +54,6 @@ def find_players(port):
 				d['ip'] = addr[0]
 				players.append(d)
 		except Exception as e:
-			print('error happened',e)
 			break
 	udpCliSock.close()
 	return players
