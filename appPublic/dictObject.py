@@ -1,5 +1,6 @@
 import json
 from json import JSONEncoder
+from inspect import ismethod, isfunction, isbuiltin, isabstract
 
 def multiDict2Dict(md):
 	ns = {}
@@ -72,17 +73,22 @@ class DictObject:
 
 	def to_dict(self):
 		d = self._addon()
-		return self.dict_to_dict(d)
+		newd =  self.dict_to_dict(d)
+		return newd
 
 	def dict_to_dict(self,dic):
 		d = {}	
-		for k,v in dic:
-			if isisntance(v,DictObject):
+		for k,v in dic.items():
+			if isinstance(v,DictObject):
 				d[k] = v.to_dict()
 			elif isinstance(v,dict):
 				d[k] = self.dict_to_dict(v)
-			elif isinsance(v,list):
+			elif isinstance(v,list):
 				d[k] = self.array_to_dict(v)
+			elif k == '__builtins__':
+				pass
+			elif isbuiltin(v) or isfunction(v) or ismethod(v) or isabstract(v):
+				pass
 			else:
 				d[k] = v
 		return d
@@ -96,6 +102,8 @@ class DictObject:
 				r.append(self.dict_to_dict(i))
 			elif isinstance(i,DictObject):
 				r.append(i.to_dict())
+			elif isbuiltin(i) or isfunction(i) or ismethod(i) or isabstract(i):
+				pass
 			else:
 				r.append(i)
 		return r
