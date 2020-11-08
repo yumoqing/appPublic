@@ -56,6 +56,9 @@ class DictObject:
 	def values(self):
 		return self._addon().values()
 
+	def __delitem__(self,key):
+		self.pop(key)
+
 	def __getitem__(self,name):
 		return self._addon().get(name)
 	
