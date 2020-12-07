@@ -88,7 +88,7 @@ class Http_Client:
 			if status is None:
 				return data
 			if status == 'OK':
-				return data['data']
+				return data.get('data')
 			return data
 		except:
 			return resp.text
