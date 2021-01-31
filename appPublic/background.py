@@ -8,4 +8,4 @@ class Background(Thread):
 		self.__kw = kw
 
 	def run(self):
-		self.__callee(*self.__args, **self.__kw)
+		return self.__callee(*self.__args, **self.__kw)
