@@ -17,7 +17,7 @@ class MyTemplateEngine:
 		self.file_coding = file_coding
 		self.out_coding = out_coding
 		loader = FileSystemLoader(pathList, encoding=self.file_coding)
-		self.env = Environment(loader=loader)	
+		self.env = Environment(loader=loader, enable_async=True)	
 		denv={
 			'json':json,
 			'hasattr':hasattr,
@@ -43,7 +43,7 @@ class MyTemplateEngine:
 		
 	def _render(self,template,data):
 		# print('**********template=',template,'**data=',data,'type_data=',type(data),'************')
-		uRet = template.render(**data)
+		uRet = await template.render_async(**data)
 		return uRet
 		
 	def renders(self,tmplstring,data):
