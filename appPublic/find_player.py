@@ -40,7 +40,7 @@ def find_players(port):
 	#设置阻塞
 	#udpCliSock.setblocking(2)
 	#设置超时时间
-	udpCliSock.settimeout(0.5)
+	udpCliSock.settimeout(5)
 	udpCliSock.bind(('', 0))  
 	udpCliSock.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)  
 	udpCliSock.sendto(b'findplayers', ('255.255.255.255',port))
