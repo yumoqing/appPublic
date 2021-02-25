@@ -4,13 +4,17 @@ try:
 	import ujson as json
 except:
 	import json
-from jinja2 import Environment,FileSystemLoader
+from jinja2 import Environment,FileSystemLoader, BaseLoader
 import codecs
 from appPublic.argsConvert import ArgsConvert
 from appPublic.dictObject import DictObject
 def isNone(obj):
 	return obj is None
 
+
+def string_template_render(tmp_string, data):
+	rtemplate = Environment(loader=BaseLoader()).from_string(myString)
+	return rtemplate.render(**data)
 
 class MyTemplateEngine:
 	def __init__(self,pathList,file_coding='utf-8',out_coding='utf-8'):
