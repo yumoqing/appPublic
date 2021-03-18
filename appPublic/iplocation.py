@@ -28,17 +28,28 @@ def iplocation(ip):
 
 def ipaddress_com(ip):
 	url = f'https://www.ipaddress.com/ipv4/{ip}'
+	print('ipaddress_com(),url=', url)
 	hc = Http_Client()
 	r = hc.get(url, headers=public_headers)
 	bs = BeautifulSoup(r, 'html.parser')
 	section = bs.find_all('section')[0]
-	tds = section.find_all('td')
-	d = {
-		"country":tds[6].contents[1].split(' ')[0],
-		"city":tds[8].contents[0],
-		"lat":float(tds[10].contents[0].split(' ')[0]),
-		"lon":float(tds[11].contents[0].split(' ')[0])
-	}
+	trs = section.find_all('tr')
+	d = {}
+	for tr in trs:
+		th = tr.find_all('th')[0]
+		td = tr.find_all('td')[0]
+		if th.contents[0] == 'IP Latitude':
+			d['lat'] = float(td.contents[0].split(' ')[0])
+			continue
+		if th.contents[0] == 'IP Country':
+			d['country'] = td.contents[1].split(' ')[0]
+			continue
+		if th.contents[0] == 'IP Longitude':
+			d['lon'] = float(td.contents[0].split(' ')[0])
+			continue
+		if th.contents[0] == 'IP City':
+			d['City'] = td.contents[0]
+			
 	return d
 
 def get_ip_location(ip):
