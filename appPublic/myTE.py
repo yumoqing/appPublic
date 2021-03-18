@@ -47,7 +47,7 @@ class MyTemplateEngine:
 		
 	def _render(self,template,data):
 		# print('**********template=',template,'**data=',data,'type_data=',type(data),'************')
-		uRet = template.render_async(**data)
+		uRet = template.render(**data)
 		return uRet
 		
 	def renders(self,tmplstring,data):
