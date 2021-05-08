@@ -13,7 +13,7 @@ def isNone(obj):
 
 
 def string_template_render(tmp_string, data):
-	rtemplate = Environment(loader=BaseLoader()).from_string(myString)
+	rtemplate = Environment(loader=BaseLoader()).from_string(tmp_string)
 	return rtemplate.render(**data)
 
 class MyTemplateEngine:
