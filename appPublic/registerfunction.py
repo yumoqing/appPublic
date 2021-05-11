@@ -14,6 +14,14 @@ class RegisterFunction:
 		return self.registKW.get(name,None)
 
 
+def getRegisterFunctionByName(name):
+	rf = RegisterFunction()
+	return rf.get(name)
+
+def registerFunction(name, func):
+	rf = RegisterFunction()
+	rf.register(name, func)
+
 if __name__ == '__main__':
 	def x(a):
 		print('x():a=',a)
