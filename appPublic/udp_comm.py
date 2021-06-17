@@ -7,6 +7,7 @@ BUFSIZE = 1024
 class UdpComm:
 	def __init__(self, port, callback, timeout=1):
 		self.callback = callback
+		self.timeout = timeout
 		self.host = get_free_local_addr()[0]
 		self.port = port
 		self.udpSerSock = socket(AF_INET, SOCK_DGRAM)
