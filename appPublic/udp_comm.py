@@ -53,3 +53,15 @@ class UdpComm:
 		b = json.dumps(data).encode('utf-8')
 		for addr in addrs:
 			self.udpSerSock.sendto(b,addr)
+
+if __name__ == '__main__':
+	import sys
+	def msg_handle(data, addr):
+		print('addr:', addr, 'data=', data)
+
+	d = UdpComm(50000, msg_handle)
+	x = input()
+	while x:
+		d.broadcast(x)
+		x = input()
+
