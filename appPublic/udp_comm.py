@@ -48,14 +48,14 @@ class UdpComm:
 
 	def send(self,data,addr):
 		b = json.dumps(data).encode('utf-8')
-		if isinstance(addr):
+		if isinstance(addr,list):
 			addr = tuple(addr)
 		self.udpSerSock.sendto(b,addr)
 
 	def sends(self,data, addrs):
 		b = json.dumps(data).encode('utf-8')
 		for addr in addrs:
-			if isinstance(addr):
+			if isinstance(addr,list):
 				addr = tuple(addr)
 			self.udpSerSock.sendto(b,addr)
 
