@@ -60,7 +60,10 @@ if __name__ == '__main__':
 	def msg_handle(data, addr):
 		print('addr:', addr, 'data=', data)
 
-	d = UdpComm(50000, msg_handle)
+	port = 50000
+	if len(sys.argv)>1:
+		port = int(sys.argv[1])
+	d = UdpComm(port, msg_handle)
 	x = input()
 	while x:
 		d.broadcast(x)
