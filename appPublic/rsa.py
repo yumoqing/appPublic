@@ -76,49 +76,70 @@ class RSA:
 	def create_publickey(self,private_key):
 		return private_key.public_key()
 		
-	def encode(self,public_key,text):
-		message_bytes = bytes(text, encoding='utf8') if not isinstance(text, bytes) else text
-		return str(base64.b64encode(public_key.encrypt(message_bytes,
+	def encode_bytes(self, public_key, bdata):
+		return public_key.encrypt(bdata,
 			padding.OAEP(
 				mgf=padding.MGF1(algorithm=hashes.SHA256()),
 				algorithm=hashes.SHA256(),
 				label=None
-			)
-		)), encoding='utf-8')
+			))
+
+	def encode(self,public_key,text):
+		message_bytes = bytes(text, encoding='utf8') if not isinstance(text, bytes) else text
+		cdata = self.encode_bytes(public_key, message_bytes)
+		return str(base64.b64encode(cdata), encoding='utf-8')
 		
-	def decode(self,private_key,cipher):
-		cipher = cipher.encode('utf8') if not isinstance(cipher, bytes) else cipher
-		ciphertext_decoded = base64.b64decode(cipher)
-		plain_text = private_key.decrypt(
-			ciphertext_decoded,padding.OAEP(
+	def decode_bytes(self, private_key, bdata):
+		return private_key.decrypt(
+			bdata,padding.OAEP(
 				mgf=padding.MGF1(algorithm=hashes.SHA256()),
 				algorithm=hashes.SHA256(),
 				label=None
 			)
 		)
+		
+	def decode(self,private_key,cipher):
+		cipher = cipher.encode('utf8') if not isinstance(cipher, bytes) else cipher
+		ciphertext_decoded = base64.b64decode(cipher)
+		plain_text = self.decode_bytes(private_key, ciphertext_decoded)
 		return str(plain_text, encoding='utf8')
 		
+	def sign_bdata(self, private_key, data_to_sign):
+		s = private_key.sign(data_to_sign,
+			  padding.PSS(
+				  mgf=padding.MGF1(hashes.SHA256()),
+				  salt_length=padding.PSS.MAX_LENGTH
+			  ),
+			  hashes.SHA256()
+		)
+		return s
+
 	def sign(self,private_key,message):
 		data_to_sign = bytes(message, encoding='utf8') if not isinstance(
 			message, 
 			bytes
 		) else message
-		signer = private_key.signer(
-			padding.PSS(
-				mgf=padding.MGF1(hashes.SHA256()),
-				salt_length=padding.PSS.MAX_LENGTH
-			),
-			hashes.SHA256()
-		)
-		signer.update(data_to_sign)
 		signature = str(
-			base64.b64encode(signer.finalize()),
+			base64.b64encode(self.sign_bdata(private_key, data_to_sign)),
 			encoding='utf8'
 		)
 		return signature
 	
-	def check_sign(self,public_key,plain_text,signature):
+	def check_sign_bdata(self, public_key, bdata, sign):
 		try:
+			r = public_key.verify(sign, bdata, 
+			  padding.PSS(
+				  mgf=padding.MGF1(hashes.SHA256()),
+				  salt_length=padding.PSS.MAX_LENGTH
+			  ),
+			  hashes.SHA256()
+			)
+			# print('verify return=', r) r is None
+			return True
+		except InvalidSignature as e:
+			return False
+
+	def check_sign(self,public_key,plain_text,signature):
 			plain_text_bytes = bytes(
 				plain_text, 
 				encoding='utf8'
@@ -126,22 +147,12 @@ class RSA:
 			signature = base64.b64decode(
 				signature
 			) if not isinstance(signature, bytes) else signature
-			verifier = public_key.verifier(
-			  signature,
-			  padding.PSS(
-				  mgf=padding.MGF1(hashes.SHA256()),
-				  salt_length=padding.PSS.MAX_LENGTH
-			  ),
-			  hashes.SHA256()
-			)
-			verifier.update(plain_text_bytes)
-			verifier.verify()
-			return True
-		except InvalidSignature as e:
-			return False
+			return self.check_sign_bdata(public_key, plain_text_bytes, \
+					signature)
 			
 if __name__ == '__main__':
-	Recv_cipher=b'JHHDhjaHLeLRopobfiJvWtVn8Bu3/3AsV6Xr8MwHBBEli7v+oHRNH2dcAfVa7VcdBlKlr7W+hDDAxlex3/OzwyRp4R5DcDsepTLPaG+nKK6zj0MGkvEJ6iNpABO9uohskFXPBuO6t3+G6cKRMMeIU7g7oSJqlbKHJyRmd9j8OHS2fFYL331oRhJvyuJe5zrdxHEOez+XEt2AbuYi7WFFVlM/DvX/tjAG3SHXr14GlJYGbuNR2LNIapAMBSt7GDQ/LrzLv54ysE3OZpVFnOszVt5ythiDPoImnpJ990Fb/1yd7goPZ5NA8cSKCu7dDV42JWcj44JHrIfNsMR7aG9QxQ=='
+	import os
+	prikey1_file = os.path.join(os.path.dirname(__file__),'..','test', 'prikey1.rsa')
 	r = RSA()
 	mpri = r.create_privatekey()
 	mpub = r.create_publickey(mpri)
@@ -151,26 +162,11 @@ if __name__ == '__main__':
 	
 	text = 'this is a test data, aaa'
 	cipher = r.encode(mpub,text)
-	signature = r.sign(zpri,text)
-	
 	ntext = r.decode(mpri,cipher)
-	check = r.check_sign(zpub,ntext,signature)
-	print(text,ntext,check)
-	
-	ypri = r.read_privatekey('d:/dev/mecp/conf/RSA.private.key','ymq123')
-	ypub = r.read_publickey('d:/dev/mecp/conf/RSA.public.key')
-	
-	x = r.encode(ypub,'root:ymq123')
-	print('root:ymq123 encode=',x,len(x),len(Recv_cipher))
-	orgtext=r.decode(ypri,Recv_cipher)
-	print(orgtext)
-	
-	r.write_publickey(ypub,'./test.public.key')
-	r.write_privatekey(ypri,'./test.private.key','ymq123')
-	ypri = r.read_privatekey('./test.private.key','ymq123')
-	ypub = r.read_publickey('./test.public.key')
-	
-	x = r.encode(ypub,text)
-	ntext = r.decode(ypri,x)
-	print(text,'<==>',ntext)
-	
+	print('encode text=', text, \
+			'decode result=', ntext,
+			'cyber size=', len(cipher),
+			'check if equal=', text==ntext)
+	signature = r.sign(zpri,text)
+	check = r.check_sign(zpub,text,signature)
+	print('sign and verify=',len(signature),check)

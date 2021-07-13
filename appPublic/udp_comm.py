@@ -3,7 +3,7 @@ from socket import *
 import json
 from appPublic.sockPackage import get_free_local_addr
 from appPublic.background import Background
-BUFSIZE = 1024
+BUFSIZE = 1024 * 64
 class UdpComm:
 	def __init__(self, port, callback, timeout=1):
 		self.callback = callback
@@ -43,17 +43,24 @@ class UdpComm:
 		udpCliSock.settimeout(self.timeout)
 		udpCliSock.bind(('', 0))  
 		udpCliSock.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)  
-		b = json.dumps(data).encode('utf-8')
+		b = data
+		if not isinstance(data, bytes):
+			b = json.dumps(data).encode('utf-8')
+		b = b'0x00' * 18 + b
 		udpCliSock.sendto(b, (broadcast_host,self.port))
-
+	
 	def send(self,data,addr):
-		b = json.dumps(data).encode('utf-8')
+		b = data
+		if not isinstance(data, bytes):
+			b = json.dumps(data).encode('utf-8')
 		if isinstance(addr,list):
 			addr = tuple(addr)
 		self.udpSerSock.sendto(b,addr)
 
 	def sends(self,data, addrs):
-		b = json.dumps(data).encode('utf-8')
+		b = data
+		if not isinstance(data, bytes):
+			b = json.dumps(data).encode('utf-8')
 		for addr in addrs:
 			if isinstance(addr,list):
 				addr = tuple(addr)
