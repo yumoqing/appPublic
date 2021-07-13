@@ -4,3 +4,4 @@ psutil
 ujson
 numpy
 cryptography
+brotli
