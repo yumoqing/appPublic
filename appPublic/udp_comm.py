@@ -24,11 +24,8 @@ class UdpComm:
 		while self.run_flg:
 			try:
 				b, addr = self.udpSerSock.recvfrom(BUFSIZE)
-				data = json.loads(b)
 				if addr[0] != self.host:
-					self.callback(data, addr)
-				# ret = json.dumps(self.info).encode('utf-8')
-				# self.udpSerSock.sendto(ret, addr)
+					self.callback(b, addr)
 			except Exception as e:
 				print('exception happened:',e)
 				pass
