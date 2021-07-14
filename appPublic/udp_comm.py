@@ -43,7 +43,6 @@ class UdpComm:
 		b = data
 		if not isinstance(data, bytes):
 			b = json.dumps(data).encode('utf-8')
-		b = b'0x00' * 18 + b
 		udpCliSock.sendto(b, (broadcast_host,self.port))
 	
 	def send(self,data,addr):
