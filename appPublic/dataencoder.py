@@ -31,7 +31,7 @@ class DataEncoder:
 	return packed data
 	unpacks data:
 	0. decompress data
-	1. get 18 bytes fmt data, erase tails b'0x00'
+	1. get 18 bytes fmt data, erase tails b'\x00'
 	2. using fmt to unpack data[18:]
 	3. verify sign
 	4. decode k
@@ -92,6 +92,10 @@ class DataEncoder:
 		pk = self.get_peer_pubkey(peer_id)
 		print(peer_id, 'pk=', pk)
 		t, d = self.identify_datatype(data)
+		if pk is None:
+			return zlib.compress(b'\x00' * 18 + \
+						bytes(chr(t),'utf-8') + \
+						data)
 		d, k = self.encode_data(pk, d)
 		f = 'b%05ds%03ds' % (len(d), len(k))
 		f1 = f + '256s'
@@ -107,10 +111,20 @@ class DataEncoder:
 
 	def unpack(self, peer_id, data):
 		data = zlib.decompress(data)
+		if data[:18] == b'\x00' * 18:
+			t = ord(data[18])
+			d = data[19:]
+			if t == DATA_TYPE_BYTES:
+				return d
+			d = d.decode('utf-8')
+			if t == DATA_TYPE_STR:
+				return d
+			return json.loads(d)
+
 		org_data = data
 		pk = self.get_peer_pubkey(peer_id)
 		f = data[:18]
-		f.strip(b'0x00')
+		f.strip(b'\x00')
 		f = f.decode('utf-8')
 		data = data[18:]
 		t, d, k, s = struct.unpack(f, data)
