@@ -6,7 +6,7 @@ from appPublic.rsa import RSA
 from appPublic.rc4 import RC4
 from appPublic.uniqueID import getID
 
-import brotli
+# import brotli
 import zlib
 import struct
 
@@ -90,6 +90,7 @@ class DataEncoder:
 
 	def pack(self, peer_id, data):
 		pk = self.get_peer_pubkey(peer_id)
+		print(peer_id, 'pk=', pk)
 		t, d = self.identify_datatype(data)
 		d, k = self.encode_data(pk, d)
 		f = 'b%05ds%03ds' % (len(d), len(k))
@@ -101,15 +102,11 @@ class DataEncoder:
 		pd += s
 		self.pack_d = [t,d,k,s]
 		origin_len = len(pd)
-		pd = brotli.compress(pd)
-		pdz = zlib.compress(pd)
-		print('brotli lenght=%d, zlib length=%d, origin length=%d' % \
-				(len(pd), len(pdz), origin_len)
-		)
+		pd = zlib.compress(pd)
 		return pd
 
 	def unpack(self, peer_id, data):
-		data = brotli.decompress(data)
+		data = zlib.decompress(data)
 		org_data = data
 		pk = self.get_peer_pubkey(peer_id)
 		f = data[:18]

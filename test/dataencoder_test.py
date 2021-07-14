@@ -2,18 +2,20 @@
 from appPublic.rsa import RSA
 from appPublic.dataencoder import DataEncoder
 
-def get_prikey(id):
-	prifile='prikey2.rsa'
-	if id=='node1':
-		prifile = 'prikey1.rsa'
-	rsa = RSA()
-	prikey = rsa.read_privatekey(prifile)
-	pubkey = rsa.create_publickey(prikey)
-	return pubkey
+Nodes = {
+}
+
+def get_pubkey(id):
+	node = Nodes.get(id)
+	return node.public_key
 
 
-node1 = DataEncoder('node1', get_prikey, 'prikey1.rsa')
-node2 = DataEncoder('node2', get_prikey, 'prikey2.rsa')
+Nodes['node1'] = node1 = DataEncoder('node1', get_pubkey, 'prikey1.rsa')
+Nodes['node2'] = node2 = DataEncoder('node2', get_pubkey, 'prikey2.rsa')
+
+node1.set_peer_pubkey('node2', get_pubkey('node2'))
+node2.set_peer_pubkey('node1', get_pubkey('node1'))
+
 data1 = {
 	'a':'iy34ti3y42ti23t425g4',
 	'b':100,
