@@ -93,7 +93,7 @@ class DataEncoder:
 		if uncrypt:
 			return zlib.compress(b'\x00' * 18 + \
 						bytes(chr(t),'utf-8') + \
-						data)
+						d)
 		pk = self.get_peer_pubkey(peer_id)
 		print(peer_id, 'pk=', pk)
 		d, k = self.encode_data(pk, d)
