@@ -89,13 +89,13 @@ class DataEncoder:
 		return pubkey
 
 	def pack(self, peer_id, data, uncrypt=False):
-		pk = self.get_peer_pubkey(peer_id)
-		print(peer_id, 'pk=', pk)
 		t, d = self.identify_datatype(data)
 		if uncrypt:
 			return zlib.compress(b'\x00' * 18 + \
 						bytes(chr(t),'utf-8') + \
 						data)
+		pk = self.get_peer_pubkey(peer_id)
+		print(peer_id, 'pk=', pk)
 		d, k = self.encode_data(pk, d)
 		f = 'b%05ds%03ds' % (len(d), len(k))
 		f1 = f + '256s'
