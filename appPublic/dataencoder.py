@@ -88,11 +88,11 @@ class DataEncoder:
 			pubkey = self.public_keys.get(peer_id)
 		return pubkey
 
-	def pack(self, peer_id, data):
+	def pack(self, peer_id, data, uncrypt=False):
 		pk = self.get_peer_pubkey(peer_id)
 		print(peer_id, 'pk=', pk)
 		t, d = self.identify_datatype(data)
-		if pk is None:
+		if uncrypt:
 			return zlib.compress(b'\x00' * 18 + \
 						bytes(chr(t),'utf-8') + \
 						data)
@@ -112,8 +112,9 @@ class DataEncoder:
 	def unpack(self, peer_id, data):
 		data = zlib.decompress(data)
 		if data[:18] == b'\x00' * 18:
-			t = ord(data[18])
-			d = data[19:]
+			data = data[18:]
+			t = ord(data[0])
+			d = data[1:]
 			if t == DATA_TYPE_BYTES:
 				return d
 			d = d.decode('utf-8')
