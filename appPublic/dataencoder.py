@@ -49,7 +49,7 @@ class DataEncoder:
 		if self.private_file:
 			self.private_key = self.rsa.read_privatekey(self.private_file)
 		else:
-			self.private_key = rsa.create_privaatekey()
+			self.private_key = self.rsa.create_privatekey()
 		self.public_key = self.rsa.create_publickey(self.private_key)
 
 	def identify_datatype(self, data):
@@ -61,8 +61,7 @@ class DataEncoder:
 		return DATA_TYPE_JSON, data
 
 	def my_text_publickey(self):
-		pk = self.public_key()
-		return self.rsa.publickeyText(pk)
+		return self.rsa.publickeyText(self.public_key)
 
 	def exist_peer_publickeys(self, peer_id):
 		return True if self.public_keys.get(peer_id, False) else False
