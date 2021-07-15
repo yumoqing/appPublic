@@ -113,7 +113,7 @@ class DataEncoder:
 		data = zlib.decompress(data)
 		if data[:18] == b'\x00' * 18:
 			data = data[18:]
-			t = ord(data[0])
+			t = ord(chr(data[0]))
 			d = data[1:]
 			if t == DATA_TYPE_BYTES:
 				return d
