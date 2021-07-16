@@ -95,7 +95,6 @@ class DataEncoder:
 						bytes(chr(t),'utf-8') + \
 						d)
 		pk = self.get_peer_pubkey(peer_id)
-		print(peer_id, 'pk=', pk)
 		d, k = self.encode_data(pk, d)
 		f = 'b%05ds%03ds' % (len(d), len(k))
 		f1 = f + '256s'
@@ -147,7 +146,6 @@ class DataEncoder:
 			key = key.encode('utf-8')
 		ctext = self.rc4.encode_bytes(data, key)
 		encoded_key = self.rsa.encode_bytes(peer_pubkey, key)
-		print('key length compare,', len(key), len(encoded_key))
 		return ctext, encoded_key
 
 	def sign_data(self, data):
