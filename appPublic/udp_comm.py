@@ -1,4 +1,5 @@
 # -*- coding:UTF-8 -*-
+from traceback import print_exc
 from socket import *
 import json
 from appPublic.sockPackage import get_free_local_addr
@@ -28,6 +29,7 @@ class UdpComm:
 					self.callback(b, addr)
 			except Exception as e:
 				print('exception happened:',e)
+				print_exc()
 				pass
 
 	def stop(self):
