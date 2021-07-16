@@ -125,7 +125,7 @@ class DataEncoder:
 		org_data = data
 		pk = self.get_peer_pubkey(peer_id)
 		f = data[:18]
-		while f[-1] == b'\x00' and len(f) > 0:
+		while f[-1] == 0 and len(f) > 0:
 			f = f[:-1]
 		f = f.decode('utf-8')
 		data = data[18:]
