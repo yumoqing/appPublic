@@ -125,7 +125,8 @@ class DataEncoder:
 		org_data = data
 		pk = self.get_peer_pubkey(peer_id)
 		f = data[:18]
-		f.strip(b'\x00')
+		while f[-1] == b'\x00' and len(f) > 0:
+			f = f[:-1]
 		f = f.decode('utf-8')
 		data = data[18:]
 		t, d, k, s = struct.unpack(f, data)
