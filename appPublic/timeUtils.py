@@ -159,3 +159,28 @@ def timestampSub(ts1,ts2) :
 
 def timestamp2dt(t):
 	return datetime.datetime.fromtimestamp(t)
+
+def date_weekinyear(date_str):
+	w = datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%W')
+	return date_str[:5] + w
+
+def date_season(date_str):
+	m = date_str[5:7]
+	sl = {
+		'01':'1',
+		'02':'1',
+		'03':'1',
+		'04':'2',
+		'05':'2',
+		'06':'2',
+		'07':'3',
+		'08':'3',
+		'09':'3',
+		'10':'4',
+		'11':'4',
+		'12':'4',
+	}
+	s = sl.get(m)
+	return date_str[:5] + s
+
+def date_s
