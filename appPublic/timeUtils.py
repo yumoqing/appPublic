@@ -161,7 +161,7 @@ def timestamp2dt(t):
 	return datetime.datetime.fromtimestamp(t)
 
 def date_weekinyear(date_str):
-	w = datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%W')
+	w = datetime.datetime.strptime(date_str, '%Y-%m-%d').strftime('%W')
 	return date_str[:5] + w
 
 def date_season(date_str):
@@ -183,4 +183,3 @@ def date_season(date_str):
 	s = sl.get(m)
 	return date_str[:5] + s
 
-def date_s
