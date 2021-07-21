@@ -27,32 +27,31 @@ def timestampstr():
 			d.microsecond/1000)
 	
 def isMonthLastDay(d):
-    dd = datetime.timedelta(1)
-    d1 = d + dd
-    if d1.month != d.month:
-        return True
-    return False
+	dd = datetime.timedelta(1)
+	d1 = d + dd
+	if d1.month != d.month:
+		return True
+	return False
 
-def isLearYear(year):
-    if year % 4 == 0 and year % 100 == 0 and not (year % 400 == 0):
-	    return True
-    return False
-	    
+def isLeapYear(year):
+	if year % 4 == 0 and year % 100 == 0 and not (year % 400 == 0):
+		return True
+	return False
+		
 def timestamp(dt):
-    return int(time.mktime((dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,dt.microsecond,0,0)))
+	return int(time.mktime((dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,dt.microsecond,0,0)))
 
 def timeStampSecond(dt):
-    return int(time.mktime((dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,0,0,0)))
+	return int(time.mktime((dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second,0,0,0)))
 
 def addSeconds(dt,s):
 	ndt = dt + datetime.timedelta(0,s)
 	return ndt
 	
 def monthMaxDay(y,m):
-    dt = ymdDate(y,m,1)
-    if isLeapYear(dt):
-        return leapMonthDays[m]
-    return unleapMonthDays[m]
+	if isLeapYear(y):
+		return leapMonthDays[m]
+	return unleapMonthDays[m]
 
 def date2str(dt=None):
 	if dt is None:
@@ -75,52 +74,61 @@ def str2Date(dstr):
 		return None
 		
 def ymdDate(y,m,d,H=0,M=0,S=0):
-    return datetime.datetime(y,m,d,H,M,S)
-    
+	return datetime.datetime(y,m,d,H,M,S)
+	
 def str2Datetime(dstr):
-	d,t = dstr.split(' ')
+	x = dstr.split(' ')
+	d = x[0]
+	t = '00:00:00'
+	if len(x) > 1:
+		t = x[1]
 	y,m,d = d.split('-')
 	H,M,S = t.split(':')
 	return datetime.datetime(int(y),int(m),int(d),int(H),int(M),int(S))
 	
+def strdate_add(date_str, days=0, months=0, years=0):
+	dt = str2Datetime(date_str)
+	dt = dateAdd(dt, days=days, months=months, years=years)
+	ds = date2str(dt)
+	return ds
+
 def addMonths(dt,months):
-    y = dt.year()
-    m = dt.month()
-    d = dt.day()
-    mm = m % 12
-    md = m / 12
-    if md != 0:
-        y += md
-    m = mm
-    maxd = monthMaxDay(y,m)
-    if d > maxd:
-        d = maxd
-    return ymdDate(y,m,d)
+	y = dt.year
+	m = dt.month + months
+	d = dt.day
+	mm = (m - 1) % 12 + 1
+	md = int((m - 1) / 12)
+	y += md
+	m = mm
+	maxd = monthMaxDay(y,m)
+	if d > maxd:
+		d = maxd
+	return ymdDate(y,m,d)
 
 def addYears(dt,years):
-    y = dt.year() + years
-    m = dt.month()
-    d = dt.day()
-    maxd = monthMaxDay(y,m)
-    if d > maxd:
-        d = maxd
-    return ymdDate(y,m,d)
+	y = dt.year + years
+	m = dt.month
+	d = dt.day
+	maxd = monthMaxDay(y,m)
+	if d > maxd:
+		d = maxd
+	return ymdDate(y,m,d)
 
 def dateAdd(dt,days=0,months=0,years=0):
-    if days != 0:
-        dd = datetime.timedelta(days)
-        dt = dt + dd    
-    if months != 0:
-        dt = addMonths(dt,months)
-    if years != 0:
-        dt = addYears(dt,years)
-    return dt
+	if days != 0:
+		dd = datetime.timedelta(days)
+		dt = dt + dd	
+	if months != 0:
+		dt = addMonths(dt,months)
+	if years != 0:
+		dt = addYears(dt,years)
+	return dt
 
 def firstSunday(dt):
-    f = dt.weekday()
-    if f<6:
-        return dt + datetime.timedelta(7 - f)
-    return dt
+	f = dt.weekday()
+	if f<6:
+		return dt + datetime.timedelta(7 - f)
+	return dt
 
 DTFORMAT = '%Y%m%d %H%M%S'
 def getCurrentTimeStamp() :
