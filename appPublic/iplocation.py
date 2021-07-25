@@ -42,7 +42,8 @@ def ipaddress_com(ip):
 			d['lat'] = float(td.contents[0].split(' ')[0])
 			continue
 		if th.contents[0] == 'IP Country':
-			d['country'] = td.contents[1].split(' ')[0]
+			print('ip country:contents[1]=', td.contents[1])
+			d['country'] = td.contents[1].split('(')[0].strip()
 			continue
 		if th.contents[0] == 'IP Longitude':
 			d['lon'] = float(td.contents[0].split(' ')[0])
