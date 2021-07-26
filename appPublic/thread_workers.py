@@ -8,13 +8,13 @@ class ThreadWorkers:
 		self.semaphore = threading.Semaphore(value=worker_cnt)
 		self.co_worker = 0
 	def _do(self, func, *args, **kwargs):
-		self.semaphore.acquire()
 		self.co_worker += 1
 		func(*args, **kwargs)
 		self.co_worker -= 1
 		self.semaphore.release()
 
 	def do(self, func, *args, **kwargs):
+		self.semaphore.acquire()
 		b = Background(self._do, func, *args, **kwargs)
 		b.start()
 
