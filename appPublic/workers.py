@@ -1,9 +1,9 @@
 import os
 import sys
 import time
-import pyodbc as db
 from multiprocessing import Process, Queue,Pipe,freeze_support,cpu_count
 from threading import Thread
+import threading
 import logging
 
 from appPublic.folderUtils import ProgramPath
@@ -95,25 +95,9 @@ class Worker(Process):
 		return None
 
 class Workers(Thread):
-	def __init__(self,worker_cnt,Wklass,argv):
+	def __init__(self,worker_cnt):
 		Thread.__init__(self)
-		self.worker_cnt = worker_cnt
-		self.aborted = False
-		self.workers = []
-		self.taskQ = Queue()
-		self.doneQ = Queue()
-		self.follows = []
-		self.task_cnt = 0
-		self.resp_cnt = 0
-		self.task_no = 0
-		self.max_task_no_resp = 0
-		
-		i = 0
-		while i < self.worker_cnt:
-			w =  Wklass(self.taskQ,self.doneQ,*argv)
-			self.workers.append(w)
-			w.start()
-			i += 1
+		self sema = threading.Semaphore(value=worker_cnt)
 	
 	def __del__(self):
 		self.cleanTaskQ()
@@ -248,3 +232,4 @@ class Workers(Thread):
 		except Exception as e:
 			logger.info("thread %s error:%s" % (self.name,str(e)))
 			return None,None,None,None
+
