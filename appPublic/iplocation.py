@@ -38,12 +38,16 @@ def ipaddress_com(ip):
 	for tr in trs:
 		th = tr.find_all('th')[0]
 		td = tr.find_all('td')[0]
+		# print(th.contents, td.contents)
 		if th.contents[0] == 'IP Latitude':
 			d['lat'] = float(td.contents[0].split(' ')[0])
 			continue
 		if th.contents[0] == 'IP Country':
-			print('ip country:contents[1]=', td.contents[1])
-			d['country'] = td.contents[1].split('(')[0].strip()
+			# print('ip country:contents[-1]=', td.contents[-1])
+			x = td.contents[-1].split('(')[0].strip()
+			while x[0] <= ' ' or x[0] >= chr(128):
+				x = x[1:]
+			d['country'] = x
 			continue
 		if th.contents[0] == 'IP Longitude':
 			d['lon'] = float(td.contents[0].split(' ')[0])
