@@ -90,7 +90,6 @@ class TopicSubscriber:
 
 		self.callback = callback
 		self.topic = topic
-		self._topic = self.topic.encode('utf-8')
 		self.context = Context.instance()
 		self.url = "tcp://{}:{}".format(address, port)
 		self.sub = self.context.socket(zmq.SUB)
