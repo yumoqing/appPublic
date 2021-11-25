@@ -100,7 +100,7 @@ class TopicSubscriber:
 			for t in self.topic:
 				self.sub.setsockopt(zmq.SUBSCRIBE, t.encode('utf-8'))
 		else:
-			self.sub.setsockopt(zmq.SUBSCRIBE, self.topic.encode('utf-8')
+			self.sub.setsockopt(zmq.SUBSCRIBE, self.topic.encode('utf-8'))
 
 
 	def run(self):
