@@ -67,6 +67,7 @@ class TopicPublisher:
 		self.url = "tcp://{}:{}".format(address, port)
 		self.pub = self.context.socket(zmq.PUB)
 		self.pub.connect(self.url)
+		time.sleep(0.5)
 
 	def send(self, message):
 		self.pub.send_multipart([self._topic, message.encode('utf-8')])
@@ -95,7 +96,11 @@ class TopicSubscriber:
 		self.sub = self.context.socket(zmq.SUB)
 		self.sub.connect(self.url)
 		# subscribe to topic 'en' or 'jp'
-		self.sub.setsockopt(zmq.SUBSCRIBE, self._topic)
+		if isinstance(self.topic, []):
+			for t in self.topic:
+				self.sub.setsockopt(zmq.SUBSCRIBE, t.encode('utf-8'))
+		else:
+			self.sub.setsockopt(zmq.SUBSCRIBE, self.topic.encode('utf-8')
 
 
 	def run(self):
