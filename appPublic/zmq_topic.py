@@ -95,7 +95,7 @@ class TopicSubscriber:
 		self.sub = self.context.socket(zmq.SUB)
 		self.sub.connect(self.url)
 		# subscribe to topic 'en' or 'jp'
-		if isinstance(self.topic, []):
+		if isinstance(self.topic, list):
 			for t in self.topic:
 				self.sub.setsockopt(zmq.SUBSCRIBE, t.encode('utf-8'))
 		else:
