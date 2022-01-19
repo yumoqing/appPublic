@@ -5,3 +5,8 @@ ujson
 numpy
 cryptography
 brotli
+aiohttp
+asyncio 
+requests
+jinja2
+zmq
