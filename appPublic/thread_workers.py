@@ -25,6 +25,7 @@ class ThreadWorkers:
 		return self.co_worker
 
 	def until_done(self):
+		time.sleep(0.1)
 		while self.co_worker > 0:
 			time.sleep(0.01)
 		
