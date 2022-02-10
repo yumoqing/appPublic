@@ -1,13 +1,21 @@
 import os
 import sys
+from requests import get
 from bs4 import BeautifulSoup
 from appPublic.http_client import Http_Client
 from appPublic.sockPackage import get_free_local_addr
 public_headers = {
 	"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36"
 }
-def ipip(ip):
+
+def get_outip():
+	ip = get('https://api.ipify.org').content.decode('utf8')
+	return ip
+
+def ipip(ip=None):
 	# ipip.net
+	if ip is None:
+		ip = get_outip()
 	api= f"http://freeapi.ipip.net/{ip}"
 	hc = Http_Client()
 	r= hc.get(api, headers=public_headers)
@@ -16,7 +24,9 @@ def ipip(ip):
 		'city':r[2]
 	}
 
-def iplocation(ip):
+def iplocation(ip=None):
+	if ip is None:
+		ip = get_outip()
 	# apikey come from
 	# https://app.apiary.io/globaliptv/tests/runs
 	# using my github accout
@@ -26,7 +36,9 @@ def iplocation(ip):
 	r= hc.get(api, headers=public_headers)
 	return r
 
-def ipaddress_com(ip):
+def ipaddress_com(ip=None):
+	if ip is None:
+		ip = get_outip()
 	url = f'https://www.ipaddress.com/ipv4/{ip}'
 	print('ipaddress_com(),url=', url)
 	hc = Http_Client()

@@ -8,11 +8,14 @@ class ThreadWorkers:
 		self.semaphore = threading.Semaphore(value=max_workers)
 		self.co_worker = 0
 	def _do(self, func, *args, **kwargs):
-		self.semaphore.acquire()
-		self.co_worker += 1
-		func(*args, **kwargs)
-		self.co_worker -= 1
-		self.semaphore.release()
+		try:
+			self.semaphore.acquire()
+			self.co_worker += 1
+			func(*args, **kwargs)
+		finally:
+			self.co_worker -= 1
+			self.semaphore.release()
+		
 
 	def do(self, func, *args, **kwargs):
 		b = Background(self._do, func, *args, **kwargs)
@@ -21,6 +24,10 @@ class ThreadWorkers:
 	def get_workers(self):
 		return self.co_worker
 
+	def until_done(self):
+		while self.co_worker > 0:
+			time.sleep(0.01)
+		
 if __name__ == '__main__':
 	def k(worker):
 		t = random.randint(1,4)
@@ -30,4 +37,4 @@ if __name__ == '__main__':
 	w = ThreadWorkers(max_workers=30)
 	for i in range(100000):
 		w.do(k, w)
-
+	
