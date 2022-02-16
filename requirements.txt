@@ -9,4 +9,4 @@ aiohttp
 asyncio 
 requests
 jinja2
-zmq
+pyzmq
