@@ -1,5 +1,6 @@
 xlrd
 xlwt
+naroid
 psutil
 ujson
 numpy
