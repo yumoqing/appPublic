@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-  
+import time
+import datetime
 import random, base64  
 from hashlib import sha1  
  
@@ -59,17 +61,88 @@ class RC4:
 		r = self.decode_bytes(data, key)
 		return r.decode(self.dcoding)
 
+class KeyChain(object):
+	def __init__(self, seed_str, crypter, keylen=23):
+		self.seed_str = seed_str
+		self.crypter = crypter
+		self.keylen = keylen
+		self.keypool = {
+		}
+	
+	def genKey(self, y, m, d):
+		vv = y * 1000 + m * 100 + d
+		if self.keypool.get(vv):
+			return self.keypool[vv]
+		v = vv
+		k1 = 0
+		k = ''
+		m = len(self.seed_str)
+		while k1 < self.keylen:
+			j = v % self.keylen
+			v = v - (j + k1) * m + self.keylen
+			k = k + self.seed_str[j]
+			k1 += 1
+		key = k.encode('utf-8')
+		self.keypool[vv] = key
+		dates = [ d for d in self.keypool.keys() ]
+		if len(dates) > 6:
+			d = min(dates)
+			del self.keypool[d]
+		return key
+
+	def encode(self, text):
+		bdata = text.encode('utf-8')
+		return self.encode_bytes(bdata)
+
+	def encode_bytes(self, bdata):
+		dt = datetime.datetime.now()
+		key = self.genKey(dt.year, dt.month, dt.day)
+		data = key + bdata
+		return self.crypter.encode_bytes(data, key)
+
+	def _decode(self, data, key):
+		d = self.crypter.decode_bytes(data, key)
+		if d[:len(key)] == key:
+			return d[len(key):]
+		return None
+
+	def decode_bytes(self, data):
+		dt = datetime.datetime.now()
+		key = self.genKey(dt.year, dt.month, dt.day)
+		d = self._decode(data, key)
+		if d is not None:
+			return d
+
+		if dt.hour == 0 and dt.minute < 1:
+			ndt = dt + datetime.timedelta(-1)
+			key = self.genKey(ndt.year, ndt.month, ndt.day)
+			return self._decode(data, key)
+			
+		if dt.hour ==23 and dt.minute == 59:
+			ndt = dt + datetime.timedelta(1)
+			key = self.genKey(ndt.year, ndt.month, ndt.day)
+			return self._decode(data, key)
+		return None
   
+	def decode(self, data):
+		d = self.decode_bytes(data)
+		if d is None:
+			return None
+		return d.decode('utf-8')
+
 if __name__=='__main__':  
 	# 需要加密的数据长度没有限制 
 	# 密钥 
+
 	data=b"231r3 feregrenerjk gkht324g8924gnfw k;ejkvwkjerv"
 	key = b'123456'  
 	rc4 = RC4()
+	kc = KeyChain('in the heaven, we are equal', rc4)
+	
 	print(data)
 	# 加码  
-	encoded_data = rc4.encode_bytes(data,key)  
+	encoded_data = kc.encode_bytes(data)  
 	print(encoded_data,len(encoded_data) )
 	# 解码  
-	decoded_data = rc4.decode_bytes(encoded_data,key)  
+	decoded_data = kc.decode_bytes(encoded_data)  
 	print(data, decoded_data, decoded_data==data)
