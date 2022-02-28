@@ -22,20 +22,14 @@ class AcrossNat(object):
 		except pmp.NATPMPUnsupportedError:
 			self.pmp_supported = False
 
-	def init_upnp(self):
-		try:
-			self.upnp = UPnP()
-			devices = self.upnp.discover()
-			if len(devices) == 0:
-				self.upnp_supported = False
-		except:
-			self.upnp_supported = False
-
 	async def get_external_ip(self):
 		if self.pmp_supported:
-			return self._pmp_get_external_ip()
+			self.external_ip = pmp.get_public_address()
+			return self.external_ip
 
 		if self.upnp_supported:
+			if self.upnp is None:
+				await self.init_upnp()
 			return await self.upnp.get_external_ip()
 
 		try:
@@ -43,13 +37,10 @@ class AcrossNat(object):
 		except:
 			return get('https://ipapi.co/ip/').text
 
-
-	def _pmp_get_external_ip(self):
-		return pmp.get_public_address()
-
-	def _upnp_get_external_ip(self):
-		
-	await def upnp_map_port(inner_port, protocol='TCP', from_port=40003):
+	async def upnp_map_port(self, inner_port, 
+							protocol='TCP', from_port=40003):
+		if self.upnp is None:
+			await self.init_upnp()
 		protocol = protocol.upper()
 		external_port = from_port
 		while external_port < 52333:
@@ -68,6 +59,8 @@ class AcrossNat(object):
 		return None
 
 	async def is_port_mapped(self, external_port, protocol='TCP'):
+		if self.upnp is None:
+			await self.init_upnp()
 		protocol = protocol.upper()
 		if self.upnp_supported:
 			x = await self.upnp.get_specific_port_mapping(external_port, 
@@ -78,81 +71,25 @@ class AcrossNat(object):
 		raise Exception('not implemented')
 
 	async def port_unmap(self, external_port, protocol='TCP'):
+		if self.upnp is None:
+			await self.init_upnp()
 		protocol = protocol.upper()
 		if self.upnp_supported:
 			await self.upnp.delete_port_mapping(external_port, protocol)
 		raise Exception('not implemented')
 
-	def map_port(self, inner_port, protocol='tcp', from_port=40003):
-		if pmp_supported:
-			return _map_port(inner_port, protocol=protocol)
-
-		return self.upnp.add_port_mapping(
-			
-			inner_port, protocol=protocol)
-
-
-
-pmp_supported = True
-
-"""
-_natmap mapping a localhost port to network gateway outter ip's port
-input:
-	port: integer, localhost host port
-	protocal: string, 'tcp', or 'udp', default is 'tcp'
-	from_port: integer, the return port will from this prot, 
-				default is 49000, if mapping failed, increases by one, 
-				and try it again. 
-
-return:
-	gateway outter ip's port, if gateway not support natpmp, return None
-"""
-
-def pmp_getExtenalIPAddress():
-	return pmp.get_public_address()
-
-
-
-def get_external_ip():
-	global pmp_supported
-	if pmp_supported:
-		try:
-			return pmp_get_public_address()
-		except pmp.NATPMPUnsupportedError:
-			pmp_supported = False
-		except Exception as e:
-			raise e
-	upnp = UPnP()
-	devices = upnp.discover()
-	if len(devices) < 1:
-		return None
-	d = devices[0]
-	services = d.get_services()
-
-def _pmp_natmap(innerport, 
-			protocol='tcp', 
-			from_port=49000, 
-			timeout=3600):
-	gateway = pmp.get_gateway_addr()
-	ret_port = from_port
-	while 1:
-		try:
-			mode = pmp.NATPMP_PROTOCOL_TCP
-			if protocol != 'tcp':
-				mode = pmp.NATPMP_PROTOCOL_UDP
-
-			x = pmp.map_port(mode, 
-						ret_port, 
-						innerport, 
-						timeout, 
-						gateway_ip=gateway)
+	def pmp_map_port(self, inner_port, protocol='TCP', from_port=40003):
+		if protocol.upper() == 'TCP':
+			x = pmp.map_tcp_port(from_port, inner_port, 
+								lifetime=999999999)
 			return x.public_port
-		except pmp.NATPMPUnsupportedError:
-			return None
-		except Exception, e:
-			time.sleep(0.01)
-			ret_port+=1
-			if ret_port > 60000:
-				return None
+		x = pmp.map_udp_port(from_port, inner_port,
+								lifetime=999999999)
+		return x.public_port
 
-def natmap(
+	async def map_port(self, inner_port, protocol='tcp', from_port=40003):
+		if self.pmp_supported:
+			return self.pmp_map_port(inner_port, protocol=protocol)
+
+		return await self.upnp_map_port( inner_port, protocol=protocol)
+

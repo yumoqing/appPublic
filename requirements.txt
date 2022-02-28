@@ -8,6 +8,7 @@ cryptography
 brotli
 aiohttp
 aioupnp
+natpmp
 asyncio 
 requests
 jinja2

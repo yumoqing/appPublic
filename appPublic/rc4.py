@@ -68,6 +68,8 @@ class KeyChain(object):
 		self.keylen = keylen
 		self.keypool = {
 		}
+		delta = datetime.timedelta(0)
+		self.timezone = datetime.timezone(delta, name='gmt')
 	
 	def genKey(self, y, m, d):
 		vv = y * 1000 + m * 100 + d
@@ -95,7 +97,7 @@ class KeyChain(object):
 		return self.encode_bytes(bdata)
 
 	def encode_bytes(self, bdata):
-		dt = datetime.datetime.now()
+		dt = datetime.datetime.now(self.timezone)
 		key = self.genKey(dt.year, dt.month, dt.day)
 		data = key + bdata
 		return self.crypter.encode_bytes(data, key)
@@ -107,7 +109,7 @@ class KeyChain(object):
 		return None
 
 	def decode_bytes(self, data):
-		dt = datetime.datetime.now()
+		dt = datetime.datetime.now(self.timezone)
 		key = self.genKey(dt.year, dt.month, dt.day)
 		d = self._decode(data, key)
 		if d is not None:
