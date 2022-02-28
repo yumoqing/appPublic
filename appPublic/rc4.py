@@ -62,17 +62,44 @@ class RC4:
 		return r.decode(self.dcoding)
 
 class KeyChain(object):
-	def __init__(self, seed_str, crypter, keylen=23):
+	def __init__(self, seed_str, crypter=None, keylen=23, period=600, threshold=60):
 		self.seed_str = seed_str
+		self.period = int(period)
+		self.threshold = int(threshold)
 		self.crypter = crypter
+		if crypter is None:
+			self.crypter = RC4()
 		self.keylen = keylen
 		self.keypool = {
 		}
 		delta = datetime.timedelta(0)
 		self.timezone = datetime.timezone(delta, name='gmt')
 	
-	def genKey(self, y, m, d):
-		vv = y * 1000 + m * 100 + d
+	def is_near_bottom(self, indicator=None):
+		ts = time.time()
+		i = indicator
+		if i is None:
+			i = self.get_indicator(ts)
+		if i + self.threshold > ts:
+			return True
+		return FalseTrue
+
+	def is_near_top(self, indicator=None):
+		ts = time.time()
+		i = indicator
+		if i is None:
+			i = self.get_indicator(ts)
+		if i + self.period - self.threshold < ts:
+			return True
+		return False
+
+	def get_indicator(self, ts=None):
+		if ts is None:
+			ts = time.time()
+		return int(ts / self.period) * self.period
+		
+	def genKey(self, indicator):
+		vv = indicator
 		if self.keypool.get(vv):
 			return self.keypool[vv]
 		v = vv
@@ -83,13 +110,13 @@ class KeyChain(object):
 			j = v % self.keylen
 			v = v - (j + k1) * m + self.keylen
 			k = k + self.seed_str[j]
-			k1 += 1
+			k1 += self.threshold / 2
 		key = k.encode('utf-8')
 		self.keypool[vv] = key
 		dates = [ d for d in self.keypool.keys() ]
-		if len(dates) > 6:
-			d = min(dates)
-			del self.keypool[d]
+		for d in dates:
+			if d < indicator - self.period:
+				del self.keypool[d]
 		return key
 
 	def encode(self, text):
@@ -97,8 +124,8 @@ class KeyChain(object):
 		return self.encode_bytes(bdata)
 
 	def encode_bytes(self, bdata):
-		dt = datetime.datetime.now(self.timezone)
-		key = self.genKey(dt.year, dt.month, dt.day)
+		indicator = self.get_indicator()
+		key = self.genKey(indicator)
 		data = key + bdata
 		return self.crypter.encode_bytes(data, key)
 
@@ -109,20 +136,20 @@ class KeyChain(object):
 		return None
 
 	def decode_bytes(self, data):
-		dt = datetime.datetime.now(self.timezone)
-		key = self.genKey(dt.year, dt.month, dt.day)
+		indicator = self.get_indicator()
+		key = self.genKey(indicator)
 		d = self._decode(data, key)
 		if d is not None:
 			return d
 
-		if dt.hour == 0 and dt.minute < 1:
-			ndt = dt + datetime.timedelta(-1)
-			key = self.genKey(ndt.year, ndt.month, ndt.day)
+		if self.is_near_bottom(indicator):
+			indicator -= self.period
+			key = self.genKey(indicator)
 			return self._decode(data, key)
 			
-		if dt.hour ==23 and dt.minute == 59:
-			ndt = dt + datetime.timedelta(1)
-			key = self.genKey(ndt.year, ndt.month, ndt.day)
+		if self.is_near_top(indicator):
+			indicator += self.period
+			key = self.genKey(indicator)
 			return self._decode(data, key)
 		return None
   
