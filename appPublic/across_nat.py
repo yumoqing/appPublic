@@ -38,14 +38,25 @@ class AcrossNat(object):
 			return get('https://ipapi.co/ip/').text
 
 	async def upnp_map_port(self, inner_port, 
-							protocol='TCP', from_port=40003):
+							protocol='TCP', from_port=40003, ip=None, desc=None):
+
 		if self.upnp is None:
 			await self.init_upnp()
 		protocol = protocol.upper()
+		if ip is None:
+			ip = self.upnp.lan_address
+
+		all_mappings = [i for i in await self.upnp.get_redirects()]
+		x = [ i for i in all_mappings if i.internal_port == inner_port \
+										and i.lan_address == ip \
+										and i.protocol == protocol ]
+		if len(x) > 0:
+			return x[0].external_port
+
+		occupied_ports = [ i.external_port for i in all_mappings if i.protocol == protocol ]
 		external_port = from_port
 		while external_port < 52333:
-			x = await self.upnp.get_specific_port_mapping(external_port, protocol)
-			if len(x) == 0:
+			if external_port not in occupied_ports:
 				break
 			external_port += 1
 
@@ -53,7 +64,7 @@ class AcrossNat(object):
 			await self.upnp.add_port_mapping(external_port,
 									protocol,
 									inner_port,
-									lan_address,
+									ip,
 									desc or 'user added')
 			return external_port
 		return None
@@ -87,9 +98,9 @@ class AcrossNat(object):
 								lifetime=999999999)
 		return x.public_port
 
-	async def map_port(self, inner_port, protocol='tcp', from_port=40003):
+	async def map_port(self, inner_port, protocol='tcp', from_port=40003, lan_ip=None, desc=None):
 		if self.pmp_supported:
 			return self.pmp_map_port(inner_port, protocol=protocol)
 
-		return await self.upnp_map_port( inner_port, protocol=protocol)
+		return await self.upnp_map_port( inner_port, protocol=protocol, ip=lan_ip, desc=desc)
 
