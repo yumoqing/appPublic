@@ -64,16 +64,19 @@ class AcrossNat(object):
 									protocol=protocol):
 				external_port += 1
 				continue
-			self.upnp.AddPortMapping(NewRemoteHost='',
-					NewExternalPort=external_port,
-					NewProtocol=protocol,
-					NewInternalPort=inner_port,
-					NewInternalClient=ip,
-					NewEnabled=1,
-					NewPortMappingDescription=desc,
-					NewLeaseDuration=0
-			)
-			return external_port
+			try:
+				self.upnp.AddPortMapping(NewRemoteHost='',
+						NewExternalPort=external_port,
+						NewProtocol=protocol,
+						NewInternalPort=inner_port,
+						NewInternalClient=ip,
+						NewEnabled=1,
+						NewPortMappingDescription=desc,
+						NewLeaseDuration=0
+				)
+				return external_port
+			except:
+				return None
 		return None
 
 	def is_port_mapped(self, external_port, protocol='TCP'):
