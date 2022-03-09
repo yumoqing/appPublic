@@ -60,7 +60,8 @@ class AcrossNat(object):
 		protocol = protocol.upper()
 		external_port = from_port
 		while external_port < 52333:
-			if self.upnp_map_port_check(external_port, protocol=protocol):
+			if self.upnp_check_external_port(external_port, 
+									protocol=protocol):
 				external_port += 1
 				continue
 			self.upnp.AddPortMapping(NewRemoteHost='',
