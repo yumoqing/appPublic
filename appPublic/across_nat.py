@@ -1,6 +1,7 @@
 
+from traceback import print_exc
 from natpmp import NATPMP as pmp
-from aioupnp.upnp import UPnP
+import upnpy
 from requests import get
 from .background import Background
 
@@ -11,10 +12,18 @@ class AcrossNat(object):
 		self.pmp_supported = True
 		self.upnp_supported = True
 		self.init_pmp()
+		self.init_upnp()
 
-	async def init_upnp(self):
-		if self.upnp is None:
-			self.upnp = await UPnP.discover()
+	def init_upnp(self):
+		try:
+			upnp = upnpy.UPnP()
+			igd = upnp.discover()[0]
+			s_names = [ n for n in igd.services.keys() if n.startswith('WANPPPConn') ]
+			self.upnp = igd.services[s_names[0]]
+		except Exception as e:
+			print(e)
+			print_exc()
+			self.upnp_supported = False
 
 	def init_pmp(self):
 		try:
@@ -22,71 +31,61 @@ class AcrossNat(object):
 		except pmp.NATPMPUnsupportedError:
 			self.pmp_supported = False
 
-	async def get_external_ip(self):
+	def get_external_ip(self):
 		if self.pmp_supported:
 			self.external_ip = pmp.get_public_address()
 			return self.external_ip
 
 		if self.upnp_supported:
-			if self.upnp is None:
-				await self.init_upnp()
-			return await self.upnp.get_external_ip()
-
+			x = self.upnp.GetExternalIPAddress()
+			return x['NewExternalIPAddress']
 		try:
 			return get('https://api.ipify.org').text
 		except:
 			return get('https://ipapi.co/ip/').text
 
-	async def upnp_map_port(self, inner_port, 
-							protocol='TCP', from_port=40003, ip=None, desc=None):
+	def upnp_check_external_port(self, eport, protocol='TCP'):
+		try:
+			self.upnp.GetSpecificPortMappingEntry(NewExternalPort=eport, 
+			NewProtocol=protocol, 
+			NewRemoteHost='')
+			return True
+		except:
+			return False
 
-		if self.upnp is None:
-			await self.init_upnp()
+	def upnp_map_port(self, inner_port, 
+							protocol='TCP', from_port=40003, 
+							ip=None, desc='test'):
+
 		protocol = protocol.upper()
-		if ip is None:
-			ip = self.upnp.lan_address
-
-		all_mappings = [i for i in await self.upnp.get_redirects()]
-		x = [ i for i in all_mappings if i.internal_port == inner_port \
-										and i.lan_address == ip \
-										and i.protocol == protocol ]
-		if len(x) > 0:
-			return x[0].external_port
-
-		occupied_ports = [ i.external_port for i in all_mappings if i.protocol == protocol ]
 		external_port = from_port
 		while external_port < 52333:
-			if external_port not in occupied_ports:
-				break
-			external_port += 1
-
-		if external_port < 52333:
-			await self.upnp.add_port_mapping(external_port,
-									protocol,
-									inner_port,
-									ip,
-									desc or 'user added')
+			if self.upnp_map_port_check(external_port, protocol=protocol):
+				external_port += 1
+				continue
+			self.upnp.AddPortMapping(NewRemoteHost='',
+					NewExternalPort=external_port,
+					NewProtocol=protocol,
+					NewInternalPort=inner_port,
+					NewInternalClient=ip,
+					NewEnabled=1,
+					NewPortMappingDescription=desc,
+					NewLeaseDuration=0
+			)
 			return external_port
 		return None
 
-	async def is_port_mapped(self, external_port, protocol='TCP'):
-		if self.upnp is None:
-			await self.init_upnp()
+	def is_port_mapped(self, external_port, protocol='TCP'):
 		protocol = protocol.upper()
 		if self.upnp_supported:
-			x = await self.upnp.get_specific_port_mapping(external_port, 
-									protocol)
-			if len(x) == 0:
-				return True
-			return False
+			return self.upnp_map_port_check(external_port, 
+									protocol=protocol)
 		raise Exception('not implemented')
 
-	async def port_unmap(self, external_port, protocol='TCP'):
-		if self.upnp is None:
-			await self.init_upnp()
+	def port_unmap(self, external_port, protocol='TCP'):
 		protocol = protocol.upper()
 		if self.upnp_supported:
-			await self.upnp.delete_port_mapping(external_port, protocol)
+			self.upnp.delete_port_mapping(external_port, protocol)
 		raise Exception('not implemented')
 
 	def pmp_map_port(self, inner_port, protocol='TCP', from_port=40003):
@@ -98,9 +97,9 @@ class AcrossNat(object):
 								lifetime=999999999)
 		return x.public_port
 
-	async def map_port(self, inner_port, protocol='tcp', from_port=40003, lan_ip=None, desc=None):
+	def map_port(self, inner_port, protocol='tcp', from_port=40003, lan_ip=None, desc=None):
 		if self.pmp_supported:
 			return self.pmp_map_port(inner_port, protocol=protocol)
 
-		return await self.upnp_map_port( inner_port, protocol=protocol, ip=lan_ip, desc=desc)
+		return self.upnp_map_port( inner_port, protocol=protocol, ip=lan_ip, desc=desc)
 
