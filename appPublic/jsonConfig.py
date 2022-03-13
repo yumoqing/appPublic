@@ -1,5 +1,6 @@
 import os,sys
 import json
+from pathlib import Path
 from appPublic.dictObject import DictObject
 from appPublic.Singleton import SingletonDecorator
 from appPublic.folderUtils import ProgramPath
@@ -46,12 +47,21 @@ class JsonObject(DictObject):
 @SingletonDecorator
 class JsonConfig(JsonObject):
 	pass
+
 def getConfig(path=None,NS=None):
+	pp = ProgramPath()
 	if path==None:
-		path = ProgramPath()
+		path = pp
 	cfname = os.path.abspath(os.path.join(path,"conf","config.json"))
 	# print __name__,cfname
-	a = JsonConfig(cfname,NS=NS)
+	ns = {
+		'home':str(Path.home()),
+		'workdir':path,
+		'ProgramPath':pp
+	}
+	if NS is not None:
+		ns.update(NS)
+	a = JsonConfig(cfname,NS=ns)
 	return a
 	
 if __name__ == '__main__':

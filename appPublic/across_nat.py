@@ -1,7 +1,7 @@
 
 from traceback import print_exc
 from natpmp import NATPMP as pmp
-import upnpy
+import upnpclient
 from requests import get
 from .background import Background
 
@@ -16,10 +16,9 @@ class AcrossNat(object):
 
 	def init_upnp(self):
 		try:
-			upnp = upnpy.UPnP()
-			igd = upnp.discover()[0]
-			s_names = [ n for n in igd.services.keys() if n.startswith('WANPPPConn') ]
-			self.upnp = igd.services[s_names[0]]
+			igd = upnpclient.discover()[0]
+			s_names = [ n for n in igd.service_map.keys() if 'WAN' in n and 'Conn' in n]
+			self.upnp = igd.service_map[s_names[0]]
 		except Exception as e:
 			print(e)
 			print_exc()

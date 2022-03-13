@@ -7,7 +7,7 @@ numpy
 cryptography
 brotli
 aiohttp
-aioupnp
+upnpclient
 py-natpmp
 asyncio 
 requests
