@@ -64,6 +64,8 @@ class RC4:
 class KeyChain(object):
 	def __init__(self, seed_str, crypter=None, keylen=23, period=600, threshold=60, time_delta=0):
 		self.seed_str = seed_str
+		if isinstance(self.seed_str, str):
+			self.seed_str = self.seed_str.encode('utf-8')
 		self.period = int(period)
 		self.threshold = int(threshold)
 		self.crypter = crypter
@@ -114,7 +116,7 @@ class KeyChain(object):
 		while k1 < self.keylen:
 			j = v % self.keylen
 			v = v - (j + k1) * m + self.keylen
-			k = k + self.seed_str[j]
+			k = k + chr(self.seed_str[j])
 			k1 += self.threshold / 2
 		key = k.encode('utf-8')
 		self.keypool[vv] = key
