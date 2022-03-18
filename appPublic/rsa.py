@@ -66,10 +66,10 @@ class RSA:
 			text = f.read()
 			return self.publickeyFromText(text)
 			
-	def create_privatekey(self):
+	def create_privatekey(self, keylength=2048):
 		return rsa.generate_private_key(
 			public_exponent=65537,
-			key_size=2048,
+			key_size=keylength,
 			backend=default_backend()
 			)
 	
@@ -154,19 +154,23 @@ if __name__ == '__main__':
 	import os
 	prikey1_file = os.path.join(os.path.dirname(__file__),'..','test', 'prikey1.rsa')
 	r = RSA()
-	mpri = r.create_privatekey()
+	mpri = r.create_privatekey(4096)
 	mpub = r.create_publickey(mpri)
 	
-	zpri = r.create_privatekey()
+	zpri = r.create_privatekey(4096)
 	zpub = r.create_publickey(zpri)
 	
-	text = 'this is a test data, aaa'
-	cipher = r.encode(mpub,text)
-	ntext = r.decode(mpri,cipher)
-	print('encode text=', text, \
-			'decode result=', ntext,
-			'cyber size=', len(cipher),
-			'check if equal=', text==ntext)
-	signature = r.sign(zpri,text)
-	check = r.check_sign(zpub,text,signature)
-	print('sign and verify=',len(signature),check)
+	l = 100
+	while True:
+		text = 'h' * l
+		cipher = r.encode(mpub,text)
+		ntext = r.decode(mpri,cipher)
+		print('textlen=', l, 'encode text=', text, \
+				'decode result=', ntext,
+				'cyber size=', len(cipher),
+				'check if equal=', text==ntext)
+		signature = r.sign(zpri,text)
+		check = r.check_sign(zpub,text,signature)
+		print('sign and verify=',len(signature),check)
+		l += 1
+

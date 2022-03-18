@@ -62,11 +62,12 @@ class RC4:
 		return r.decode(self.dcoding)
 
 class KeyChain(object):
-	def __init__(self, seed_str, crypter=None, keylen=23, period=600, threshold=60):
+	def __init__(self, seed_str, crypter=None, keylen=23, period=600, threshold=60, time_delta=0):
 		self.seed_str = seed_str
 		self.period = int(period)
 		self.threshold = int(threshold)
 		self.crypter = crypter
+		self.time_delta = time_delta
 		if crypter is None:
 			self.crypter = RC4()
 		self.keylen = keylen
@@ -75,8 +76,12 @@ class KeyChain(object):
 		delta = datetime.timedelta(0)
 		self.timezone = datetime.timezone(delta, name='gmt')
 	
+	def get_timestamp(self):
+		ts = int(time.time()) - self.time_delta
+		return ts
+
 	def is_near_bottom(self, indicator=None):
-		ts = time.time()
+		ts = self.get_timestamp()
 		i = indicator
 		if i is None:
 			i = self.get_indicator(ts)
@@ -85,7 +90,7 @@ class KeyChain(object):
 		return FalseTrue
 
 	def is_near_top(self, indicator=None):
-		ts = time.time()
+		ts = self.get_timestamp()
 		i = indicator
 		if i is None:
 			i = self.get_indicator(ts)
@@ -95,7 +100,7 @@ class KeyChain(object):
 
 	def get_indicator(self, ts=None):
 		if ts is None:
-			ts = time.time()
+			ts = self.get_timestamp()
 		return int(ts / self.period) * self.period
 		
 	def genKey(self, indicator):

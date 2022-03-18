@@ -81,7 +81,7 @@ class AcrossNat(object):
 	def is_port_mapped(self, external_port, protocol='TCP'):
 		protocol = protocol.upper()
 		if self.upnp_supported:
-			return self.upnp_map_port_check(external_port, 
+			return self.upnp_check_external_port(external_port, 
 									protocol=protocol)
 		raise Exception('not implemented')
 
