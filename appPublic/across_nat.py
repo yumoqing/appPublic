@@ -40,7 +40,7 @@ class AcrossNat(object):
 			return x['NewExternalIPAddress']
 		try:
 			return get('https://api.ipify.org').text
-		except:/Users/ymq/pydev/github/appPublic/appPublic 
+		except:
 			return get('https://ipapi.co/ip/').text
 
 	def upnp_check_external_port(self, eport, protocol='TCP'):
