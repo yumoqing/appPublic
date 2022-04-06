@@ -9,17 +9,16 @@ levels={
 	"error":logging.error,
 	"critical":logging.CRITICAL
 }
-defaultfmt = '%(asctime)s[%(name)s][%(filename)s:%(lineno)s]%(message)s'
+defaultfmt = '%(asctime)s[%(name)s][%(levelname)s][%(filename)s:%(lineno)s]%(message)s'
 logfile = -1
-level = None
+level = levels.get('info')
 
 def create_logger(name, formater=defaultfmt, levelname='info', file=None):
 	global logfile, level
 	if logfile == -1:
 		logfile = file
 	ret = logging.getLogger(name)
-	if level is None:
-		level = levels.get(levelname, levels.get('debug'))
+	level = levels.get(levelname, levels.get('info'))
 	ret.setLevel(level)
 	format = logging.Formatter(formater)
 	file_handler = None
