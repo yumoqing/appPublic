@@ -24,6 +24,13 @@ def ipip(ip=None):
 		'city':r[2]
 	}
 
+def ip_api_com(ip):
+	url = f'http://ip-api.com/json/{ip}'
+	hc = Http_Client()
+	r = hc.get(url)
+	r['City'] = r['city']
+	return r
+
 def iplocation(ip=None):
 	if ip is None:
 		ip = get_outip()
@@ -71,6 +78,7 @@ def ipaddress_com(ip=None):
 
 def get_ip_location(ip):
 	apis = {
+		"ip-api":ip_api_com,
 		"ipaddress":ipaddress_com,
 		"ipip.net":ipip,
 		"iplocation":iplocation,
