@@ -24,6 +24,15 @@ def ipip(ip=None):
 		'city':r[2]
 	}
 
+def ipapi_co(ip):
+	url = f'https://ipapi.co/{ip}/json/'
+	hc = Http_Client()
+	r = hc.get(url)
+	r['City'] = r['city']
+	r['lat'] = r['latitude']
+	r['lon'] = r['longitude']
+	return r
+
 def ip_api_com(ip):
 	url = f'http://ip-api.com/json/{ip}'
 	hc = Http_Client()
@@ -43,50 +52,17 @@ def iplocation(ip=None):
 	r= hc.get(api, headers=public_headers)
 	return r
 
-def ipaddress_com(ip=None):
-	if ip is None:
-		ip = get_outip()
-	url = f'https://www.ipaddress.com/ipv4/{ip}'
-	print('ipaddress_com(),url=', url)
-	hc = Http_Client()
-	r = hc.get(url, headers=public_headers)
-	bs = BeautifulSoup(r, 'html.parser')
-	section = bs.find_all('section')[0]
-	trs = section.find_all('tr')
-	d = {}
-	for tr in trs:
-		th = tr.find_all('th')[0]
-		td = tr.find_all('td')[0]
-		# print(th.contents, td.contents)
-		if th.contents[0] == 'IP Latitude':
-			d['lat'] = float(td.contents[0].split(' ')[0])
-			continue
-		if th.contents[0] == 'IP Country':
-			# print('ip country:contents[-1]=', td.contents[-1])
-			x = td.contents[-1].split('(')[0].strip()
-			while x[0] <= ' ' or x[0] >= chr(128):
-				x = x[1:]
-			d['country'] = x
-			continue
-		if th.contents[0] == 'IP Longitude':
-			d['lon'] = float(td.contents[0].split(' ')[0])
-			continue
-		if th.contents[0] == 'IP City':
-			d['City'] = td.contents[0]
-			
-	return d
-
 def get_ip_location(ip):
-	apis = {
-		"ip-api":ip_api_com,
-		"ipaddress":ipaddress_com,
-		"ipip.net":ipip,
-		"iplocation":iplocation,
-	}
+	funcs = [
+		ip_api_com,
+		ipapi_co,
+		ipip,
+		iplocation
+	]
 	hc = Http_Client()
-	for k,v in apis.items():
+	for f in funcs:
 		try:
-			r = v(ip)
+			r = f(ip)
 			return r
 		except:
 			pass
