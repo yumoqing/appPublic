@@ -32,16 +32,26 @@ class AcrossNat(object):
 
 	def get_external_ip(self):
 		if self.pmp_supported:
-			self.external_ip = pmp.get_public_address()
-			return self.external_ip
+			try:
+				self.external_ip = pmp.get_public_address()
+				return self.external_ip
+			except:
+				self.pmp_supported = False
 
 		if self.upnp_supported:
-			x = self.upnp.GetExternalIPAddress()
-			return x['NewExternalIPAddress']
+			try:
+				x = self.upnp.GetExternalIPAddress()
+				return x['NewExternalIPAddress']
+			except:
+				self.upnp_supported = False
 		try:
 			return get('https://api.ipify.org').text
 		except:
+			pass
+		try:
 			return get('https://ipapi.co/ip/').text
+		except:
+			return None
 
 	def upnp_check_external_port(self, eport, protocol='TCP'):
 		try:
