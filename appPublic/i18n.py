@@ -153,8 +153,9 @@ class MiniI18N:
 		threadid = threading.currentThread()
 		return self.clientLangs[threadid]['lang']
 
-def getI18N(coding='utf8'):
-	path = ProgramPath()
+def getI18N(path=None, coding='utf8'):
+	if path is None:
+		path = ProgramPath()
 	i18n = MiniI18N(path,coding)
 	return i18n
 
