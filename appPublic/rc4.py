@@ -89,7 +89,7 @@ class KeyChain(object):
 			i = self.get_indicator(ts)
 		if i + self.threshold > ts:
 			return True
-		return FalseTrue
+		return False
 
 	def is_near_top(self, indicator=None):
 		ts = self.get_timestamp()

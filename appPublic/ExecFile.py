@@ -100,7 +100,7 @@ class ExecFile(object) :
 		try :
 			exec(buf,globals(),self.__object.__dict__)
 		except Exception as e:
-			print("ExecFile()",e)
+			print("ExecFile()",e,self.__file)
 			return (False,e)
 		return (True,'')
 						

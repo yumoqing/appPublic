@@ -24,6 +24,13 @@ class Http_Client:
 	def __init__(self):
 		self.s = requests.Session()
 		self.s.verify = False
+		self.s.hooks['response'].append(self.response_handler)
+
+	def prepped_handler(self, prepped):
+		pass
+
+	def response_handler(self, resp, *args, **kw):
+		return resp
 		
 	def url2domain(self,url):
 		parts = url.split('/')[:3]
@@ -47,6 +54,7 @@ class Http_Client:
 			req = requests.Request(method,url,
 					data=params,files=files,headers=headers)
 		prepped = self.s.prepare_request(req)
+		self.prepped_handler(prepped)
 		resp = self.s.send(prepped)
 		if resp.status_code == 200:
 			h = resp.headers.get('Set-Cookie',None)
