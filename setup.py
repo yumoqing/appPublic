@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-
+from  appPublic.version import __version__
 try:
 	from setuptools import setup
 except ImportError:
@@ -11,7 +11,7 @@ except ImportError:
 # python setup.py bdist_egg generate a egg file
 # Release information about eway
 
-version = "5.1.8"
+version = __version__
 name = "appPublic"
 description = "appPublic"
 author = "yumoqing"
