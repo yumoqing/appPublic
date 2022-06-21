@@ -1,4 +1,8 @@
-import ujson as json
+try:
+    import ujson as json
+except:
+    import json
+
 import codecs
 
 def loadf(fn,coding='utf8'):
