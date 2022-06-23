@@ -11,13 +11,15 @@ levels={
 }
 defaultfmt = '%(asctime)s[%(name)s][%(levelname)s][%(filename)s:%(lineno)s]%(message)s'
 logfile = -1
+g_levelname='info'
 level = levels.get('info')
 
-def create_logger(name, formater=defaultfmt, levelname='info', file=None):
+def create_logger(name, formater=defaultfmt, levelname=g_levelname, file=None):
 	global logfile, level
 	if logfile == -1:
 		logfile = file
 	ret = logging.getLogger(name)
+	g_levelname = levelname
 	level = levels.get(levelname, levels.get('info'))
 	ret.setLevel(level)
 	format = logging.Formatter(formater)
