@@ -1,5 +1,5 @@
 
-from appPublic.rsa import RSA
+from appPublic.rsawrap import RSA
 from appPublic.dataencoder import DataEncoder
 
 Nodes = {

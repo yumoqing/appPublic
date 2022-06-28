@@ -1,5 +1,5 @@
 import sys
-from appPublic.rsa import RSA
+from appPublic.rsawrap import RSA
 
 def gen(filename):
 	rsa = RSA()
