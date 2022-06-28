@@ -1,4 +1,4 @@
-from appPublic.rsa import RSA
+from appPublic.rsawrap import RSA
 from appPublic.rc4 import RC4
 try:
 	import ujson as json
