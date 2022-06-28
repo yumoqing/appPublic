@@ -2,7 +2,7 @@ try:
 	import ujson as json
 except:
 	import json
-from appPublic.rsa import RSA
+from appPublic.rsawrap import RSA
 from appPublic.rc4 import RC4
 from appPublic.uniqueID import getID
 
