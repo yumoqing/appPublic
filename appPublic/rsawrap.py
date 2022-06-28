@@ -13,7 +13,7 @@ class RSA:
 
 	def publickeyText(self,public_key):
 		bd = public_key.save_pkcs1()
-		return bd.encode(self.coding)
+		return bd.decode(self.coding)
 
 	def write_publickey(self,public_key,fname):
 		bd = public_key.save_pkcs1()
