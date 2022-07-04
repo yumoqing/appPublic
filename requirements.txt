@@ -4,7 +4,7 @@ naroid
 psutil
 ujson
 numpy
-cryptography
+rsa
 brotli
 aiohttp
 upnpclient
