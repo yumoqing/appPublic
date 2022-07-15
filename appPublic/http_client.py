@@ -107,24 +107,25 @@ class Http_Client:
 				files={},
 				stream=False):
 		return self.webcall(url, method=method,
-						params=params, files=files, headers=headers)
+						params=params, files=files, 
+						headers=headers, stream=stream)
 
-	def get(self, url, params={}, headers={}):
+	def get(self, url, params={}, headers={}, stream=False):
 		return self.__call__(url,method='GET',params=params,
-				headers=headers)
-	def post(self, url, params={}, headers={}, files={}):
+				headers=headers, stream=stream)
+	def post(self, url, params={}, headers={}, files={}, stream=False):
 		return self.__call__(url,method='POST',params=params, files=files,
-				headers=headers)
+				headers=headers, stream=stream)
 
-	def put(self, url, params={}, headers={}):
+	def put(self, url, params={}, headers={}, stream=False):
 		return self.__call__(url,method='PUT',params=params,
-				headers=headers)
+				headers=headers, stream=stream)
 
-	def delete(self, url, params={}, headers={}):
+	def delete(self, url, params={}, headers={}, stream=False):
 		return self.__call__(url,method='DELETE',params=params,
-				headers=headers)
+				headers=headers, stream=stream)
 
-	def option(self, url, params={}, headers={}):
+	def option(self, url, params={}, headers={}, stream=False):
 		return self.__call__(url,method='OPTION',params=params,
-				headers=headers)
+				headers=headers, stream=stream)
 	
