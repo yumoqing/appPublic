@@ -1,4 +1,5 @@
 xlrd
+ffpyplayer
 xlwt
 naroid
 psutil
