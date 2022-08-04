@@ -3,7 +3,9 @@ from ffpyplayer.player import  MediaPlayer
 from ffpyplayer.tools import set_log_callback, get_log_callback, formats_in
 
 class AudioPlayer:
-	def __init__(self, source=None, autoplay=False, loop=False):
+	def __init__(self, source=None, autoplay=False, 
+				loop=False, 
+				on_stop=None):
 		self.volume = 1
 		self.state = None
 		self.source = None
@@ -11,6 +13,7 @@ class AudioPlayer:
 		self.loop = loop
 		self.autoplay = autoplay
 		self.player = None
+		self.on_stop = on_stop
 		self.cmds = []
 		if source:
 			self.set_source(source)
@@ -18,16 +21,6 @@ class AudioPlayer:
 	def set_source(self, source):
 		self.source = source
 		self.load()
-
-	def _push(self, d):
-		self.cmds.append(d)
-
-	def _pump(self):
-		if len(self.cmds) < 1:
-			return False
-		cmd, args = self.cmds.pop(0)
-		cmd(*args)
-		return True
 
 	def player_callback(self, selector, value):
 		if self.player is None:
@@ -38,12 +31,10 @@ class AudioPlayer:
 			def close(*args):
 				self.quitted = True
 				self.unload()
-			self._push((close, []))
-			# close()
+			close()
 		
 		elif selector == 'eof':
-			self._push((self._do_eos, []))
-			#Clock.schedule_once(self._do_eos, 0)
+			self._do_eos()
 
 	def load(self):
 		if self.source is None:
@@ -97,10 +88,20 @@ class AudioPlayer:
 		self.player.toggle_pause()
 		self.state = 'pause'
 
-	def stop(self):
+	def is_busy(self):
 		if self.player and self.state == 'play':
+			return True
+		return False
+
+	def stop(self):
+		if self.player is None:
+			return
+		if self.state == 'play':
 			self.player.toggle_pause()
-			self.state = 'stop'
+		self.state = 'stop'
+		self.seek(0)
+		if self.on_stop:
+			self.on_stop()
 	
 	def seek(self, pos):
 		if self.player is None:
@@ -118,6 +119,7 @@ class AudioPlayer:
 		if self.loop:
 			self.seek(0.)
 		else:
+			print('go stop')
 			self.stop()
 
 
