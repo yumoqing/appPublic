@@ -7,4 +7,6 @@
 # keep 5.1.14 version's change
 # __version__ = '5.1.15'
 # keep 5.1.14 version's change
-__version__ = '5.1.16'
+# __version__ = '5.1.16'
+# add ssh port forward function
+__version__ = '5.1.17'
