@@ -11,6 +11,18 @@ except ImportError:
 class ForwardServer(SocketServer.ThreadingTCPServer):
 	daemon_threads = True
 	allow_reuse_address = True
+	server_ready = False
+	ready_callback = None
+	def service_actions(self):
+		super().service_actions()
+		if not self.server_ready:
+			self.server_ready = True
+			if self.ready_callback:
+				self.ready_callback()
+
+	def shutdown(self):
+		self.server_ready = False
+		super().shutdown()
 
 g_verbose = True
 def verbose(s):
@@ -82,6 +94,11 @@ class SSHPortForward:
 		self.ssh_user = ssh_user
 		self.ssh_password = ssh_password
 		self.running = False
+		self._ready = False
+
+	def service_ready(self):
+		print('servie ready .....')
+		self._ready = True
 
 	def run(self):
 		if self.running:
@@ -97,13 +114,16 @@ class SSHPortForward:
 						self.ssh_password)
 
 		self.transport = self.ssh.get_transport()
+		class MyForwardServer(ForwardServer):
+			ready_callback = self.service_ready
+
 		class SubHandler(Handler):
 			chain_host = socket.gethostbyname(self.remote_host)
 			chain_port = self.remote_port
 			local_port = self.local_port
 			ssh_transport = self.transport
 
-		self.forward_server = ForwardServer((socket.gethostbyname('localhost'), self.local_port), SubHandler)
+		self.forward_server = MyForwardServer((socket.gethostbyname('localhost'), self.local_port), SubHandler)
 		self.forward_server.serve_forever()
 		print('forward ....')
 
