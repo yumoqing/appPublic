@@ -23,10 +23,10 @@ class AudioPlayer:
 		self.load()
 
 	def player_callback(self, selector, value):
-		if self.player is None:
-			print('self.player is None')
-			return
 		print(f'player_callback(): {selector}, {value}')
+		if self.player is None:
+			print(f'player_callback():self.player is None, {selector}, {value}')
+			return
 		if selector == 'quit':
 			def close(*args):
 				self.quitted = True
@@ -47,14 +47,15 @@ class AudioPlayer:
 			loglevel='info',
 			ff_opts=ff_opts)
 		player = self.player
-		player.set_volume(self.volume)
-		player.toggle_pause()
 		self.state = 'pause'
 		s = time.perf_counter()
 		while (player.get_metadata()['duration'] is None and
 				not self.quitted and 
 				time.perf_counter() - s < 10.):
 			time.sleep(0.005)
+		player.toggle_pause()
+		time.sleep(0.04)
+		player.set_volume(self.volume)
 		if self.autoplay:
 			self.play()
 
@@ -70,7 +71,7 @@ class AudioPlayer:
 		if self.player is None:
 			self.load()
 		if self.player is None:
-			print('self.player is None')
+			print('play():self.player is None')
 			return
 		if self.state == 'play':
 			return
@@ -81,7 +82,7 @@ class AudioPlayer:
 		if self.player is None:
 			self.load()
 		if self.player is None:
-			print('self.player is None')
+			print('pause():self.player is None')
 			return
 		if self.state == 'pause':
 			return
@@ -105,7 +106,7 @@ class AudioPlayer:
 	
 	def seek(self, pos):
 		if self.player is None:
-			print('self.player is None')
+			print('seek():self.player is None')
 			return
 		self.player.seek(pos, relative=False)
 
