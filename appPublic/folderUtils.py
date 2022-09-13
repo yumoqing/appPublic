@@ -7,11 +7,16 @@ import os.path
 import platform
 import time
 import random
+import tempfile
 """
 import win32api
 """
 import sys
 
+def temp_file(suffix='.txt'):
+	x = tempfile.mkstemp(suffix=suffix)
+	os.close(x(0))
+	return x[1]
 
 def filepoolpath(root):
 		paths=[191,193,197,199,97]
