@@ -26,6 +26,7 @@ class TimeCost:
 			return 0,0,0
 		return len(x), sum(x), sum(x)/len(x)
 	
+	@classmethod
 	def show(self):
 		print('TimeCost ....')
 		for name in timerecord.keys():
