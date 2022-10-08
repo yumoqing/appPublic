@@ -20,12 +20,6 @@ class TimeCost:
 	def clear(self):
 		timerecord = {}
 
-	def getTimeCost(self,name):
-		x = timerecord.get(name,[])
-		if len(x) == 0:
-			return 0,0,0
-		return len(x), sum(x), sum(x)/len(x)
-	
 	@classmethod
 	def clear_all(self):
 		timerecord = {}
@@ -36,7 +30,13 @@ class TimeCost:
 
 	@classmethod
 	def show(self):
+		def getTimeCost(name):
+			x = timerecord.get(name,[])
+			if len(x) == 0:
+				return 0,0,0
+			return len(x), sum(x), sum(x)/len(x)
+		
 		print('TimeCost ....')
 		for name in timerecord.keys():
-			print(name, * self.getTimeCost(name))
+			print(name, * getTimeCost(name))
 
