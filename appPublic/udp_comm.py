@@ -1,4 +1,5 @@
 # -*- coding:UTF-8 -*-
+import time
 from traceback import print_exc
 from socket import *
 import json
@@ -6,16 +7,16 @@ from appPublic.sockPackage import get_free_local_addr
 from appPublic.background import Background
 BUFSIZE = 1024 * 64
 class UdpComm:
-	def __init__(self, port, callback, timeout=1):
+	def __init__(self, port, callback, timeout=0):
 		self.callback = callback
 		self.timeout = timeout
 		self.host = get_free_local_addr()[0]
 		self.port = port
 		self.udpSerSock = socket(AF_INET, SOCK_DGRAM)
 		# 设置阻塞
-		self.udpSerSock.setblocking(1)
+		self.udpSerSock.setblocking(1 if timeout > 0 else 0)
 		# 设置超时时间 1s
-		# self.udpSerSock.settimeout(timeout)
+		self.udpSerSock.settimeout(timeout)
 		self.udpSerSock.bind(('' ,port))
 		self.run_flg = True
 		self.thread = Background(self.run)
@@ -27,6 +28,8 @@ class UdpComm:
 				b, addr = self.udpSerSock.recvfrom(BUFSIZE)
 				if addr[0] != self.host:
 					self.callback(b, addr)
+				if timeout == 0:
+					time.sleep(0.1)
 			except Exception as e:
 				print('exception happened:',e)
 				print_exc()
