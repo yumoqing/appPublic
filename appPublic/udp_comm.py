@@ -28,7 +28,10 @@ class UdpComm:
 	def run(self):
 		sock = self.udpSerSock
 		while self.run_flg:
-			in_s, out_s, exc_s = select([sock], [sock], [])
+			outs = []
+			if len(self.buffer) > 0:
+				outs = [sock]
+			in_s, out_s, exc_s = select([sock], outs, [], 0.1)
 			if sock in in_s:
 				b, addr = sock.recvfrom(BUFSIZE)
 				t = b[0]
@@ -36,17 +39,27 @@ class UdpComm:
 				if t == 'b':
 					self.callback(b, addr)
 				else:
-					txt = b.decode('utf-8')
-					d = json.loads(txt)
-					self.callback(d, addr)
+					try:
+						txt = b.decode('utf-8')
+						d = json.loads(txt)
+						self.callback(d, addr)
+					except Exception as e:
+						print('except:',e)
+						print_exc()
+						print(t, b)
+						break
 			if sock in out_s:
 				while len(self.buffer) > 0:
 					d,addr = self.buffer.pop(0)	
 					sock.sendto(d, addr)
+			time.sleep(0.1)
+		self.run_flg = False
 		self.udpSerSock.close()
 
 	def stop(self):
 		self.run_flg = False
+		self.udpSerSock.close()
+		self.thread.join()
 		
 	def broadcast(self, data):
 		broadcast_host = '.'.join(self.host.split('.')[:-1]) + '.255'
