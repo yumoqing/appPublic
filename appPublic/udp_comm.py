@@ -2,47 +2,56 @@
 import time
 from traceback import print_exc
 from socket import *
+from select import select
+
 import json
 from appPublic.sockPackage import get_free_local_addr
 from appPublic.background import Background
 BUFSIZE = 1024 * 64
 class UdpComm:
 	def __init__(self, port, callback, timeout=0):
+		self.buffer = []
 		self.callback = callback
 		self.timeout = timeout
 		self.host = get_free_local_addr()[0]
 		self.port = port
 		self.udpSerSock = socket(AF_INET, SOCK_DGRAM)
 		# 设置阻塞
-		self.udpSerSock.setblocking(1 if timeout > 0 else 0)
+		# self.udpSerSock.setblocking(1 if timeout > 0 else 0)
 		# 设置超时时间 1s
-		self.udpSerSock.settimeout(timeout)
+		# self.udpSerSock.settimeout(timeout)
 		self.udpSerSock.bind(('' ,port))
 		self.run_flg = True
 		self.thread = Background(self.run)
 		self.thread.start()
 	
 	def run(self):
+		sock = self.udpSerSock
 		while self.run_flg:
-			try:
-				b, addr = self.udpSerSock.recvfrom(BUFSIZE)
-				if addr[0] != self.host:
+			in_s, out_s, exc_s = select([sock], [sock], [])
+			if sock in in_s:
+				b, addr = sock.recvfrom(BUFSIZE)
+				t = b[0]
+				b = b[1:]
+				if t == 'b':
 					self.callback(b, addr)
-				if timeout == 0:
-					time.sleep(0.1)
-			except Exception as e:
-				print('exception happened:',e)
-				print_exc()
-				pass
+				else:
+					txt = b.decode('utf-8')
+					d = json.loads(txt)
+					self.callback(d, addr)
+			if sock in out_s:
+				while len(self.buffer) > 0:
+					d,addr = self.buffer.pop(0)	
+					sock.sendto(d, addr)
+		self.udpSerSock.close()
 
 	def stop(self):
 		self.run_flg = False
-		self.udpSerSock.close()
 		
 	def broadcast(self, data):
 		broadcast_host = '.'.join(self.host.split('.')[:-1]) + '.255'
 		udpCliSock = socket(AF_INET, SOCK_DGRAM)
-		udpCliSock.settimeout(self.timeout)
+		# udpCliSock.settimeout(1)
 		udpCliSock.bind(('', 0))  
 		udpCliSock.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)  
 		b = data
@@ -53,24 +62,21 @@ class UdpComm:
 	def send(self,data,addr):
 		b = data
 		if not isinstance(data, bytes):
-			b = json.dumps(data).encode('utf-8')
+			b = b'j' + json.dumps(data).encode('utf-8')
+		else:
+			b = b'b' + data
 		if isinstance(addr,list):
 			addr = tuple(addr)
-		self.udpSerSock.sendto(b,addr)
+		self.buffer.append((b, addr))
 
 	def sends(self,data, addrs):
-		b = data
-		if not isinstance(data, bytes):
-			b = json.dumps(data).encode('utf-8')
-		for addr in addrs:
-			if isinstance(addr,list):
-				addr = tuple(addr)
-			self.udpSerSock.sendto(b,addr)
+		for a in addrs:
+			self.send(data, a)
 
 if __name__ == '__main__':
 	import sys
 	def msg_handle(data, addr):
-		print('addr:', addr, 'data=', data)
+		print('addr:', addr, 'data=', data, len(data))
 
 	port = 50000
 	if len(sys.argv)>1:
@@ -78,6 +84,7 @@ if __name__ == '__main__':
 	d = UdpComm(port, msg_handle)
 	x = input()
 	while x:
-		d.broadcast(x)
+		port, data = x.split(':')
+		d.send(data, ('', int(port)))
 		x = input()
 
