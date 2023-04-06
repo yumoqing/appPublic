@@ -51,7 +51,7 @@ class JsonConfig(JsonObject):
 def getConfig(path=None,NS=None):
 	pp = ProgramPath()
 	if path==None:
-		path = pp
+		path = os.getcwd()
 	cfname = os.path.abspath(os.path.join(path,"conf","config.json"))
 	# print __name__,cfname
 	ns = {
