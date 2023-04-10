@@ -38,10 +38,11 @@ class RC4:
 		if type(data)==type(''):
 			data = data.encode(self.dcoding)
 		key = key.encode(self.bcoding)
-		self.encode_bytes(data, key)
+		code = self.encode_bytes(data, key)
 		if encode:  
-			data = encode(data)
-		return data.decode(self.dcoding)
+			code = encode(code)
+		return code.decode(self.dcoding)
+		return code
 
 	def decode_bytes(self, data, key):
 		salt_length = 16
@@ -165,6 +166,35 @@ class KeyChain(object):
 		if d is None:
 			return None
 		return d.decode('utf-8')
+pwdkey = 'ytguiojbhvhbnkl'
+def password(pwdtxt):
+	rc = RC4()
+	code = rc.encode(pwdtxt, pwdkey)
+	t = rc.decode(code, pwdkey)
+	if (t == pwdtxt):
+		return code
+	else:
+		return None
+
+def unpassword(code):
+	rc = RC4()
+	t = rc.decode(code, pwdkey)
+	return t
+	
+"""
+if __name__ == '__main__':
+	import sys
+	if len(sys.argv) > 1:
+		print(password(sys.argv[1]))
+		sys.exit(0)
+	ps = [
+		'45dr6tcfyvguh',
+		'ft7gy8uh9ij0',
+		'opiluykhcgjfncm'
+	]
+	for p in ps:
+		print(password(p))
+"""
 
 if __name__=='__main__':  
 	# 需要加密的数据长度没有限制 

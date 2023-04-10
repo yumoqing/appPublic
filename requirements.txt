@@ -1,4 +1,6 @@
 xlrd
+bs4
+ffpyplayer
 xlwt
 nanoid
 psutil
