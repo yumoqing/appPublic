@@ -22,7 +22,7 @@ def validate_code(id, cnt=6):
 		j += 1
 		if len(code) >= cnt:
 			break
-	return code
+	return ''.join(code)
 
 def check_code(id, code):
 	c = validate_code(id)
