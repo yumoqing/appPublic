@@ -1,6 +1,6 @@
 import asyncio
 import sys
-from sqlor import DBPools
+from sqlor.dbpools import DBPools
 from appPublic.jsonConfig import getConfig
 
 def run(coro):
