@@ -1,5 +1,5 @@
 import asyncio
-import ays
+import sys
 from sqlor import DBPools
 from appPublic.jsonConfig import getConfig
 
