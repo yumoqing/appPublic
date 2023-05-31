@@ -50,7 +50,12 @@ class ArgsConvert(object):
 		try:
 			v = eval(var,namespace)
 		except Exception as e:
-			v = namespace.get(var,default)
+			v = namespace.get(var, None)
+			if v:
+				return v
+			if callable(default):
+				return default(var)
+			return default
 		return v 
 			
 	def convertUnicode(self,s,namespace,default):
