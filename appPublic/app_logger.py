@@ -15,7 +15,7 @@ g_levelname='info'
 level = levels.get('info')
 
 def create_logger(name, formater=defaultfmt, levelname=None, file=None):
-	global logfile, level
+	global logfile, level, g_levelname
 	if logfile == -1:
 		logfile = file
 	ret = logging.getLogger(name)
