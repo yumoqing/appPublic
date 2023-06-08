@@ -14,12 +14,15 @@ logfile = -1
 g_levelname='info'
 level = levels.get('info')
 
-def create_logger(name, formater=defaultfmt, levelname=g_levelname, file=None):
+def create_logger(name, formater=defaultfmt, levelname=None, file=None):
 	global logfile, level
 	if logfile == -1:
 		logfile = file
 	ret = logging.getLogger(name)
-	g_levelname = levelname
+	if levelname:
+		g_levelname = levelname
+	else:
+		levelname = g_levelname
 	level = levels.get(levelname, levels.get('info'))
 	ret.setLevel(level)
 	format = logging.Formatter(formater)
