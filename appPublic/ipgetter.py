@@ -42,6 +42,9 @@ import future.moves.urllib.request
 urllib = future.moves.urllib.request
 PY3K = version_info >= (3, 0)
 
+__version__ = "0.6"
+
+
 def myip():
 	return IPgetter().get_external_ip()
 
@@ -78,35 +81,30 @@ class IPgetter(object):
 							# 'https://www.privateinternetaccess.com/pages/whats-my-ip/',
 							# 'http://www.infosniper.net/',
 							# 'http://ipinfo.io/',
-		g = IpGetter('http://ipinfo.io/ip', lambda x: x)
 	"""
 
 	def __init__(self):
 		self.server_list = [
-						'https://api.ipify.org',
-						'https://ident.me', 
-						'http://myip.dnsomatic.com', 
-						'https://checkip.amazonaws.com',
-						'http://ifconfig.me/ip',
-						'http://ipecho.net/plain',
-						'http://getmyipaddress.org/',
-						'http://www.my-ip-address.net/',
-						'http://myexternalip.com/raw',
-						'http://www.canyouseeme.org/',
-						'http://www.trackip.net/',
-						'http://icanhazip.com/',
-						'http://www.ipchicken.com/',
-						'http://whatsmyip.net/',
-						'http://www.lawrencegoetz.com/programs/ipinfo/',
-						'http://ip-lookup.net/',
-						'http://ipgoat.com/',
-						'http://www.myipnumber.com/my-ip-address.asp',
-						'http://www.geoiptool.com/',
-						'http://checkip.dyndns.com/',
-						'http://myexternalip.com/',
-						'http://www.ip-adress.eu/',
-						'http://wtfismyip.com/',
-						'http://httpbin.org/ip',
+							'http://ifconfig.me/ip',
+							'http://ipecho.net/plain',
+							'http://getmyipaddress.org/',
+							'http://www.my-ip-address.net/',
+							'http://myexternalip.com/raw',
+							'http://www.canyouseeme.org/',
+							'http://www.trackip.net/',
+							'http://icanhazip.com/',
+							'http://www.ipchicken.com/',
+							'http://whatsmyip.net/',
+							'http://www.lawrencegoetz.com/programs/ipinfo/',
+							'http://ip-lookup.net/',
+							'http://ipgoat.com/',
+							'http://www.myipnumber.com/my-ip-address.asp',
+							'http://www.geoiptool.com/',
+							'http://checkip.dyndns.com/',
+							'http://myexternalip.com/',
+							'http://www.ip-adress.eu/',
+							'http://wtfismyip.com/',
+							'http://httpbin.org/ip',
 		]
 
 		
@@ -129,10 +127,9 @@ class IPgetter(object):
 				continue
 		return ''
 
-	def add_server(self, server, parser=None):
+	def add_server(self, server, parser):
 		self.server_list.append(server)
-		if parser:
-			self.parsers[server] = parser
+		self.parsers[server] = parser
 
 	def defaultparser(self, content):
 		p = '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.('
