@@ -1,7 +1,9 @@
+import os
 import time
 from natpmp import NATPMP as pmp
 import upnpclient
-from ipgetter import IPgetter
+from appPublic.ipgetter import IPgetter
+from multiprocessing import Process, Pipe
 
 def pmp_get_external_ip():
 	return pmp.get_public_address()
@@ -31,11 +33,26 @@ def get_external_ip():
 		return ip
 	return ipgetter_get_external_ip()
 
+def outip(w):
+	os.dup2(w.fileno(), 1)
+	ip = get_external_ip()
+	print(ip)
+
+def get_ip():
+	r, w = Pipe()
+	reader = os.fdopen(r.fileno(), 'r')
+	p = Process(None, outip, 'TESTER', (w, ))
+	p.start()
+	ip = reader.readline()
+	p.join()
+	return ip.strip()
+
 def run():
 	while True:
-		ip = get_external_ip()
+		ip = get_ip()
 		if ip:
-			print(ip)
+			print(f'{ip=}')
 		time.sleep(10)
 
-
+if __name__ == '__main__':
+	run()
