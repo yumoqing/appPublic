@@ -27,7 +27,7 @@ class RSA:
 
 	def publickeyFromText(self,text):
 		bd = text.encode(self.coding)
-		rsa.PublicKey.load_pkcs1(bd)
+		return rsa.PublicKey.load_pkcs1(bd)
 
 	def read_publickey(self,fname):
 		with open(fname, 'rb') as pf:
@@ -70,7 +70,10 @@ class RSA:
 			r = rsa.verify(bdata, sign, public_key)
 			if r == 'SHA-1':
 				return True
-		except:
+			print(f'verify()={r}')
+			return False
+		except Exception as e:
+			print(f'check_sign_bdata() raise Exception{e}')
 			return False
 
 
