@@ -6,23 +6,32 @@ from appPublic.ipgetter import IPgetter
 from multiprocessing import Process, Pipe
 
 def pmp_get_external_ip():
-	return pmp.get_public_address()
+	try:
+		return pmp.get_public_address()
+	except:
+		return None
 
 def upnp_get_external_ip():
-	igd = upnpclient.discover()[0]
-	s_names = [ n for n in igd.service_map.keys() if 'WAN' in n and 'Conn' in n]
-	upnp = igd.service_map[s_names[0]]
-	x = upnp.GetExternalIPAddress()
-	return x.get('NewExternalIPAddress', None)
+	try:
+		igd = upnpclient.discover()[0]
+		s_names = [ n for n in igd.service_map.keys() if 'WAN' in n and 'Conn' in n]
+		upnp = igd.service_map[s_names[0]]
+		x = upnp.GetExternalIPAddress()
+		return x.get('NewExternalIPAddress', None)
+	except:
+		return None
 	
 def ipgetter_get_external_ip():
 	getter = IPgetter()
 	ip = None
 	while ip is None:
-		ip = getter.get_external_ip()
+		try:
+			ip = getter.get_external_ip()
+		except:
+			ip = None
 		if ip:
 			return ip
-		time.sleep(0.5)
+		time.sleep(0.1)
 
 def get_external_ip():
 	ip = pmp_get_external_ip()
