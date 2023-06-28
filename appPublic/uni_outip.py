@@ -14,11 +14,14 @@ def pmp_get_external_ip():
 def upnp_get_external_ip():
 	try:
 		igd = upnpclient.discover()[0]
+		print(igd.service_map)
+
 		s_names = [ n for n in igd.service_map.keys() if 'WAN' in n and 'Conn' in n]
 		upnp = igd.service_map[s_names[0]]
 		x = upnp.GetExternalIPAddress()
 		return x.get('NewExternalIPAddress', None)
-	except:
+	except Exception as e:
+		print(f'e={e}')
 		return None
 	
 def ipgetter_get_external_ip():

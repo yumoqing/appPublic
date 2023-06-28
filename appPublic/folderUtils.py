@@ -68,10 +68,12 @@ def findAllDrives():
 
 ## list all folder name under folder named by path
 #
-def folderList(path) :
+def listFolder(path, rescursive=False) :
 	for name in os.listdir(path) :
 		full_name = os.path.join(path,name)
 		if os.path.isdir(full_name):
+			for f in listFolder(full_name, rescursive=rescursive):
+				yield f
 			yield full_name
 
 def listFile(folder,suffixs=[],rescursive=False):
