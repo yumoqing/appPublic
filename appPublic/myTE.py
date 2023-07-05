@@ -68,3 +68,15 @@ class MyTemplateEngine:
 		with codecs.open(jsonfile,"r",self.file_coding) as f:
 			data = json.load(f)
 			return self.render(tmplfile,data)
+
+def tmpTml(f, ns):
+	te = MyTemplateEngine('.')
+	with codecs.open(f, 'r', 'utf-8') as fd:
+		d = fd.read()
+		b = te.renders(d, ns)
+		filename = os.path.basename(f)
+		p = f'/tmp/{filename}'
+		with codecs.open(p, 'w', 'utf-8') as wf: 
+			wf.write(b)
+			return p
+
