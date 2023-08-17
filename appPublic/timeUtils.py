@@ -214,6 +214,14 @@ def is_monthend(dt):
 	return False
 
 def is_match_pattern(pattern, strdate):
+	"""
+R:代表实时
+D：代表日
+W[0-6]：代表周日到周六
+M[00-31]:代表月末月到某一天
+S[1-3]-[00-31]:代表季度第几个月的第几天
+Y[1-12]-[00-31]:代表一年中的某个月的某一天
+	"""
 	if pattern == 'D':
 		return True
 	dt = str2date(strdate)
