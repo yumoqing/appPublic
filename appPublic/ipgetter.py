@@ -119,9 +119,9 @@ class IPgetter(object):
 
 		random.shuffle(self.server_list)
 		myip = ''
-		for server in self.server_list[:3]:
-			myip = self.fetch(server)
-			if myip != '':
+		for server in self.server_list:
+			myip = self.defaultparser(self.fetch(server))
+			if myip != '' and not (myip.startswith('192.') or myip.startswith('10.')) and not myip.startswith('127'):
 				return myip
 			else:
 				continue
@@ -135,13 +135,14 @@ class IPgetter(object):
 		p = '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.('
 		p += '25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|['
 		p += '01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
-		m = re.search(
-			p,
-			content)
-		myip = m.group(0)
-		if len(myip) > 0:
-			return myip
-		else:
+		try:
+			m = re.search(p, content)
+			myip = m.group(0)
+			if len(myip) > 0:
+				return myip
+			else:
+				return ''
+		except:
 			return ''
 
 	def handle_timeout(self, url):
@@ -235,9 +236,4 @@ if __name__ == '__main__':
 	g = IPgetter()
 	server = 'http://ipinfo.io/json'
 	g.add_server(server, p)
-	print(g.fetch(server))
-	"""
-	while True:
-		print(myip())
-		time.sleep(0.5)
-	"""
+	print(g.get_external_ip())
