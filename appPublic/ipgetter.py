@@ -81,6 +81,7 @@ class IPgetter(object):
 							# 'https://www.privateinternetaccess.com/pages/whats-my-ip/',
 							# 'http://www.infosniper.net/',
 							# 'http://ipinfo.io/',
+							# 'http://myexternalip.com/',
 	"""
 
 	def __init__(self):
@@ -89,7 +90,6 @@ class IPgetter(object):
 							'http://ipecho.net/plain',
 							'http://getmyipaddress.org/',
 							'http://www.my-ip-address.net/',
-							'http://myexternalip.com/raw',
 							'http://www.canyouseeme.org/',
 							'http://www.trackip.net/',
 							'http://icanhazip.com/',
@@ -101,7 +101,6 @@ class IPgetter(object):
 							'http://www.myipnumber.com/my-ip-address.asp',
 							'http://www.geoiptool.com/',
 							'http://checkip.dyndns.com/',
-							'http://myexternalip.com/',
 							'http://www.ip-adress.eu/',
 							'http://wtfismyip.com/',
 							'http://httpbin.org/ip',
