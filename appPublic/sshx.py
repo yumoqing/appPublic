@@ -6,10 +6,15 @@ from appPublic.myTE import tmpTml
 import asyncio, asyncssh, sys
 
 class SSHNode:
-	def __init__(self, host, username='root', port=22, jumpers=[]):
+	def __init__(self, host, 
+						username='root', 
+						port=22, 
+						password=None, 
+						jumpers=[]):
 		self.server2 = {
 				"host":host,
 				"username":username,
+				"password":password,
 				"port":port
 		}
 		self.jumpers = jumpers
@@ -20,20 +25,30 @@ class SSHNode:
 		refconn = None
 		for j in self.jumpers:
 			host = j['host']
-			username = j['username']
-			port = j['port']
-			refconn = await asyncssh.connect(host,
+			username = j.get('username', 'root')
+			port = j.get('port',22)
+			password=  j.get('password', None)
+			if refconn:
+				refconn = await refconn.connect_ssh(host,
 									username=username,
+									password=password,
+									port=port)
+			else:
+				refconn = await asyncssh.connect(host,
+									username=username,
+									password=password,
 									port=port)
 			self.jumper_conns.append(refconn)
 
 		host = self.server2['host']
-		username = self.server2['username']
-		port = self.server2['port']
+		username = self.server2.get('username', 'root')
+		port = self.server2.get('port',22)
+		password = self.server2.get('password', None)
 		if refconn:
 			return await refconn.connect_ssh(host,
 								username=username,
 								port=port,
+								password=password,
 								known_hosts=None)
 		else:
 			return await asyncssh.connect(host,
