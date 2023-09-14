@@ -18,6 +18,7 @@ class SSHNode:
 				"port":port
 		}
 		self.jumpers = jumpers
+		self.conn = None
 		self.jumper_conns = []
 		self.batch_cmds = []
 
@@ -45,77 +46,65 @@ class SSHNode:
 		port = self.server2.get('port',22)
 		password = self.server2.get('password', None)
 		if refconn:
-			return await refconn.connect_ssh(host,
+			self.conn = await refconn.connect_ssh(host,
 								username=username,
 								port=port,
 								password=password,
 								known_hosts=None)
 		else:
-			return await asyncssh.connect(host,
+			self.conn = await asyncssh.connect(host,
 								username=username,
 								port=port)
 
-	def close(self, conn):
-		conn.close()
+	def close(self):
+		self.conn.close()
 		cnt = len(self.jumper_conns)
 		cnt -= 1
 		while cnt >= 0:
 			self.jumper_conns[cnt].close()
 			cnt -= 1
 		self.jumper_conns = []
+		self.conn = None
 
-	async def _l2r(self, conn, lf, rf):
-		x = await asyncssh.scp(lf, (conn, rf), 
+	async def _l2r(self, lf, rf):
+		x = await asyncssh.scp(lf, (self.conn, rf), 
 							preserve=True, recurse=True)
 		return x
 
-	async def process(self, conn, *args, **kw):
-		a = await conn.create_process(*args, **kw)
+	async def _process(self, *args, **kw):
+		a = await self.conn.create_process(*args, **kw)
 		return a
 
-	async def _r2l(self, conn, rf, lf):
-		x = await asyncssh.scp((conn, rf), lf,
+	async def _r2l(self, rf, lf):
+		x = await asyncssh.scp((self.conn, rf), lf,
 							preserve=True, recurse=True)
 		return x
 
-	async def _cmd(self, conn, cmd, stdin=None, stdout=None):
-		return await conn.run(cmd, stdin=stdin, stdout=stdout)
+	async def _cmd(self, cmd, stdin=None, stdout=None):
+		return await self.conn.run(cmd, stdin=stdin, stdout=stdout)
 
 	async def _run(self, conn, cmd, stdin=None, stdout=None):
 		if cmd.startswith('l2r'):
 			args = shlex.split(cmd)
 			if len(args) == 3:
-				x = await self._l2r(conn, args[1], args[2]) 
+				x = await self._l2r(args[1], args[2]) 
 				return x
 
 		if cmd.startswith('r2l'):
 			args = shlex.split(cmd)
 			if len(args) == 3:
-				x = await self._r2l(conn, args[1], args[2]) 
+				x = await self._r2l(args[1], args[2]) 
 				return x
 
-		return await self._cmd(conn, cmd, stdin=stdin, stdout=stdout)
+		return await self._cmd(cmd, stdin=stdin, stdout=stdout)
 
-	async def _batch(self, conn, bcs):
-		for bc in self.bcs:
-			x = await self._run(conn, 
-							bc['cmd'], 
-							stdin=bc['stdin'],
-							stdout=bc['stdout'])
-		
 	async def run(self, cmd, stdin=None, stdout=None):
-		conn = await self.connect()
-		result = await self._run(conn, cmd, 
+		await self.connect()
+		result = await self._run(cmd, 
 								stdin=stdin, stdout=stdout)
-		self.close(conn)
+		self.close()
 		return result
 
-	async def exe_batch(self, bcs):
-		conn = await self.connect()
-		result = await self._batch(conn, bcs)
-		self.close(conn)
-		return result
-	
 class SSHNodes:
 	def __init__(self, nodes, usernmae='root', port=22, jumpers=[]):
 		self.nodes = [ Node(n, username=username, port=port, jumpers=jumpers) for n in nodes ]
@@ -217,9 +206,8 @@ class SSHBash:
 		self.stdin_need = True
 
 	async def run(self, read_co, write_co):
-		self.conn = await self.node.connect()
-		self.p_obj = await self.node.process(self.conn,
-										'bash', 
+		await self.node.connect()
+		self.p_obj = await self.node._process('bash', 
 										term_type='vt100',
 										term_size=(80,24),
 										encoding=None)
