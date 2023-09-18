@@ -98,7 +98,7 @@ class SSHNode:
 	async def _cmd(self, cmd, input=None, stdin=None, stdout=None):
 		return await self.conn.run(cmd, input=input, stdin=stdin, stdout=stdout)
 
-	async def _xcmd(self, cmd, xmsgs=[]):
+	async def _xcmd(self, cmd, xmsgs=[], ns={}):
 		proc = await self._process(cmd, term_type='xterm',
 										term_size=(80,24),
 										encoding='utf-8'
@@ -109,7 +109,8 @@ class SSHNode:
 		for i in range(msglen):
 			if xmsgs[i][0]:
 				break
-			proc.stdin.write(xmsgs[i][1])
+			s = xmsgs[i][1].format(**ns)
+			proc.stdin.write(s)
 
 		while True:
 			if proc.stdout.at_eof():
@@ -119,10 +120,11 @@ class SSHNode:
 			if i >= msglen:
 				continue
 
-			k = xmsgs[i][0]
-			kin = buffer.split(xmsgs[i][0], 1)
+			k = xmsgs[i][0].format(**ns)
+			kin = buffer.split(k, 1)
 			if len(kin) > 1:
-				proc.stdin.write(xmsgs[i][1])
+				s = xmsgs[i][1].format(**ns)
+				proc.stdin.write(s)
 				await proc.stdin.drain()
 				buffer = kin[1]
 				i += 1
