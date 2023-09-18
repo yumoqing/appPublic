@@ -22,6 +22,21 @@ class SSHNode:
 		self.jumper_conns = []
 		self.batch_cmds = []
 
+	def info(self):
+		d = {
+			"jumpers":self.jumpers,
+		}
+		d.update(self.server2)
+		return d
+
+	def asjumper(self):
+		a = self.jumpers.copy()
+		a.append(self.server2)
+		return a
+
+	def set_jumpers(self, jumpers):
+		self.jumpers = jumpers
+
 	async def connect(self):
 		refconn = None
 		for j in self.jumpers:
@@ -80,10 +95,39 @@ class SSHNode:
 							preserve=True, recurse=True)
 		return x
 
-	async def _cmd(self, cmd, stdin=None, stdout=None):
-		return await self.conn.run(cmd, stdin=stdin, stdout=stdout)
+	async def _cmd(self, cmd, input=None, stdin=None, stdout=None):
+		return await self.conn.run(cmd, input=input, stdin=stdin, stdout=stdout)
 
-	async def _run(self, conn, cmd, stdin=None, stdout=None):
+	async def _xcmd(self, cmd, xmsgs=[]):
+		proc = await self._process(cmd, term_type='xterm',
+										term_size=(80,24),
+										encoding='utf-8'
+		)
+		buffer = ''
+		
+		msglen = len(xmsgs)
+		for i in range(msglen):
+			if xmsgs[i][0]:
+				break
+			proc.stdin.write(xmsgs[i][1])
+
+		while True:
+			if proc.stdout.at_eof():
+				break
+			x = await proc.stdout.read(1024)
+			buffer += x
+			if i >= msglen:
+				continue
+
+			k = xmsgs[i][0]
+			kin = buffer.split(xmsgs[i][0], 1)
+			if len(kin) > 1:
+				proc.stdin.write(xmsgs[i][1])
+				await proc.stdin.drain()
+				buffer = kin[1]
+				i += 1
+
+	async def _run(self, cmd, input=None, stdin=None, stdout=None):
 		if cmd.startswith('l2r'):
 			args = shlex.split(cmd)
 			if len(args) == 3:
@@ -96,11 +140,18 @@ class SSHNode:
 				x = await self._r2l(args[1], args[2]) 
 				return x
 
-		return await self._cmd(cmd, stdin=stdin, stdout=stdout)
+		return await self._cmd(cmd, input=input, stdin=stdin, stdout=stdout)
 
-	async def run(self, cmd, stdin=None, stdout=None):
+	def show_result(self, x):
+		if isinstance(x, Exception):
+			print('Exception:',e)
+		else:
+			print('stdout:', x.stdout)
+			print('stderr:', x.stderr)
+
+	async def run(self, cmd, input=None, stdin=None, stdout=None):
 		await self.connect()
-		result = await self._run(cmd, 
+		result = await self._run(cmd, input=input,
 								stdin=stdin, stdout=stdout)
 		self.close()
 		return result
@@ -194,15 +245,12 @@ class SSHBash:
 		self.loop.stop()
 
 	async def feed_stdin(self, f):
-		print('1111111')
 		self.stdin_need = False
 		x = await f(65535)
 		if x is None:
 			self.exit()
-		print('22222222')
 		self.p_obj.stdin.write(x)
 		await self.p_obj.stdin.drain()
-		print('33333333')
 		self.stdin_need = True
 
 	async def run(self, read_co, write_co):
