@@ -16,3 +16,4 @@ requests
 jinja2
 pyzmq
 cryptography
+asyncssh

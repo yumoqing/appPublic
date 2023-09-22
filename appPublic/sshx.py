@@ -1,6 +1,7 @@
 import os
 import sys
 import shlex
+from functools import partial
 from threading import Thread
 from appPublic.myTE import tmpTml
 import asyncio, asyncssh, sys
@@ -98,8 +99,11 @@ class SSHNode:
 	async def _cmd(self, cmd, input=None, stdin=None, stdout=None):
 		return await self.conn.run(cmd, input=input, stdin=stdin, stdout=stdout)
 
-	async def _xcmd(self, cmd, xmsgs=[], ns={}):
+	async def _xcmd(self, cmd, xmsgs=[], ns={}, 
+						show_input=None,
+						show_stdout=None):
 		proc = await self._process(cmd, term_type='xterm',
+
 										term_size=(80,24),
 										encoding='utf-8'
 		)
@@ -111,23 +115,40 @@ class SSHNode:
 				break
 			s = xmsgs[i][1].format(**ns)
 			proc.stdin.write(s)
+		keyin = False
+		def feed_data(xmsgs, debug_input):
+			if len(xmsgs) == 0:
+				return
+			a = xmsgs[0]
+			xmsgs.reverse()
+			xmsgs.pop()
+			xmsgs.reverse()
+			s = a[1].format(**ns)
+			proc.stdin.write(s)
+			if debug_input:
+				debug_input(f'{s=},{a=}')
+			keyin = True
 
+		already_output = False
+		callee = None
+		loop = asyncio.get_event_loop()
 		while True:
 			if proc.stdout.at_eof():
 				break
-			x = await proc.stdout.read(1024)
-			buffer += x
-			if i >= msglen:
-				continue
 
-			k = xmsgs[i][0].format(**ns)
-			kin = buffer.split(k, 1)
-			if len(kin) > 1:
-				s = xmsgs[i][1].format(**ns)
-				proc.stdin.write(s)
+			if keyin:
+				keyin = False
 				await proc.stdin.drain()
-				buffer = kin[1]
-				i += 1
+
+			if len(xmsgs) > 0 and already_output:
+				f = partial(feed_data, xmsgs, show_input)
+				callee = loop.call_later(xmsgs[0][0], f)
+			x = await proc.stdout.read(1024)
+			if callee:
+				callee.cancel()
+			if show_stdout:
+				show_stdout(x)
+			already_output = True
 
 	async def _run(self, cmd, input=None, stdin=None, stdout=None):
 		if cmd.startswith('l2r'):
