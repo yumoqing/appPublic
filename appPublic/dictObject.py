@@ -31,6 +31,12 @@ class DictObject(dict):
 		except KeyError:
 			return None
 
+	def __reduce__(self):
+		return super().__reduce__()
+	
+	def __reduce_ex__(self, proto):
+		return super().__reduce_ex__(proto)
+
 	def has(self, key):
 		try:
 			v = super().__getitem__(key)
