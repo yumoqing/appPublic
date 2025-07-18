@@ -20,40 +20,41 @@ class DictObjectEncoder(JSONEncoder):
 		return o._addon()
 
 class DictObject(dict):
-    def __init__(self, *args, **kwargs):
-        super().__init__()
-        self.update(*args, **kwargs)
+	def __init__(self, *args, **kwargs):
+		super().__init__()
+		self.update(*args, **kwargs)
 
-    def __getattr__(self, key):
-        try:
-            return self[key]
-        except KeyError:
-            raise AttributeError(f"No such attribute: {key}")
+	def __getattr__(self, key):
+		try:
+			return self[key]
+		except KeyError:
+			return None
+			# raise AttributeError(f"No such attribute: {key}")
 
-    def __setattr__(self, key, value):
-        self[key] = value
+	def __setattr__(self, key, value):
+		self[key] = value
 
-    def __delattr__(self, key):
-        try:
-            del self[key]
-        except KeyError:
-            raise AttributeError(f"No such attribute: {key}")
+	def __delattr__(self, key):
+		try:
+			del self[key]
+		except KeyError:
+			raise AttributeError(f"No such attribute: {key}")
 
-    def __setitem__(self, key, value):
-        super().__setitem__(key, self._wrap(value))
+	def __setitem__(self, key, value):
+		super().__setitem__(key, self._wrap(value))
 
-    def update(self, *args, **kwargs):
-        for k, v in dict(*args, **kwargs).items():
-            self[k] = self._wrap(v)
+	def update(self, *args, **kwargs):
+		for k, v in dict(*args, **kwargs).items():
+			self[k] = self._wrap(v)
 
-    @staticmethod
-    def _wrap(value):
-        if isinstance(value, dict):
-            return DictObject(value)
-        elif isinstance(value, list):
-            return [DictObject._wrap(v) for v in value]
-        else:
-            return value
+	@staticmethod
+	def _wrap(value):
+		if isinstance(value, dict):
+			return DictObject(value)
+		elif isinstance(value, list):
+			return [DictObject._wrap(v) for v in value]
+		else:
+			return value
 
 """
 def dictObjectFactory(_klassName__,**kwargs):
