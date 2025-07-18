@@ -20,100 +20,42 @@ class DictObjectEncoder(JSONEncoder):
 		return o._addon()
 
 class DictObject(dict):
-	def __getattr__(self, attr):
-		"""
-		实现点操作符访问字典中的键值对
-		"""
-		try:
-			v = self.__DOitem(self[attr])
-			self[attr] = v
-			return v
-		except KeyError:
-			return None
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.update(*args, **kwargs)
 
-	def __reduce__(self):
-		return super().__reduce__()
-	
-	def __reduce_ex__(self, proto):
-		return super().__reduce_ex__(proto)
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(f"No such attribute: {key}")
 
-	def has(self, key):
-		try:
-			v = super().__getitem__(key)
-			return True
-		except KeyError:
-			return False
+    def __setattr__(self, key, value):
+        self[key] = value
 
-	def get_data_by_keys(self, keys):
-		try:
-			ks = keys.split('.', 1)
-			if '[' not in ks[0]:
-				d = getattr(self, ks[0])
-				if len(ks) == 1:
-					return d
-				if isinstance(d, DictObject):
-					return d.get_data_by_keys(ks[1])
-				return None
-			ks1 = ks[0].split('[', 1)
-			k = ks1[0]
-			idx = int(ks1[1].split(']',1)[0])
-			d = getattr(self, k)[idx]
-			if len(ks) == 1:
-				return d
-			if isinstance(d, DictObject):
-				return d.get_data_by_keys(ks[1])
-			return None
-		except:
-			return None
-			
-	def __getitem__(self, key):
-		try:
-			v = self.__DOitem(super().__getitem__(key))
-			self[key] = v
-			return v
-		except KeyError:
-			return None
+    def __delattr__(self, key):
+        try:
+            del self[key]
+        except KeyError:
+            raise AttributeError(f"No such attribute: {key}")
 
-	def __setattr__(self, attr, value):
-		"""
-		实现点操作符设置字典中的键值对
-		"""
-		self[attr] = value
+    def __setitem__(self, key, value):
+        super().__setitem__(key, self._wrap(value))
 
-	def get(self, k, defv=None):
-		if self.has(k):
-			return self[k]
-		else:
-			return defv
+    def update(self, *args, **kwargs):
+        for k, v in dict(*args, **kwargs).items():
+            self[k] = self._wrap(v)
 
-	def copy(self):
-		return self.__DOitem(super().copy())
+    @staticmethod
+    def _wrap(value):
+        if isinstance(value, dict):
+            return DictObject(value)
+        elif isinstance(value, list):
+            return [DictObject._wrap(v) for v in value]
+        else:
+            return value
 
-	@classmethod
-	def isMe(self,name):
-		return name == 'DictObject'
-
-	def to_dict(self):
-		return self
-
-	def __DOArray(self,a):
-		b = [ self.__DOitem(i) for i in a ]
-		return b
-	
-	def __DOitem(self, i):
-		if isinstance(i,DictObject):
-			return i
-		if isinstance(i,dict):
-			i = {k:v for k,v in i.items() if isinstance(k,str)}
-			try:
-				d = DictObject(**i)
-				return d
-			except Exception as e:
-				raise e
-		if type(i) == type([]) or type(i) == type(()) :
-			return self.__DOArray(i)
-		return i
-
+"""
 def dictObjectFactory(_klassName__,**kwargs):
 	def findSubclass(_klassName__,klass):
 		for k in klass.__subclasses__():
@@ -133,4 +75,4 @@ def dictObjectFactory(_klassName__,**kwargs):
 	except Exception as e:
 		print("dictObjectFactory()",e,_klassName__)
 		raise e
-
+"""
