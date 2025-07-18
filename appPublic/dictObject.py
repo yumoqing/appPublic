@@ -47,6 +47,21 @@ class DictObject(dict):
 		for k, v in dict(*args, **kwargs).items():
 			self[k] = self._wrap(v)
 
+	def to_dict(self):
+		return {k:DictObject._dict(v) for k,v in self.items()}
+
+	def copy(self):
+		return DictObject(**{k:DictObject._wrap(v) for k,v in self.items()})
+
+	@staticmethod
+	def _dict(value):
+		if isinstance(value, dict):
+			return value.to_dict()
+		elif isinstance(value, list):
+			return [DictObject._dict(v) for v in value]
+		else:
+			return value
+
 	@staticmethod
 	def _wrap(value):
 		if isinstance(value, dict):
