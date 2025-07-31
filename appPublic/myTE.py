@@ -4,7 +4,7 @@ try:
 	import ujson as json
 except:
 	import json
-from jinja2 import Environment,FileSystemLoader, BaseLoader
+from jinja2 import Environment,FileSystemLoader, BaseLoader, meta
 import codecs
 from appPublic.argsConvert import ArgsConvert
 from appPublic.dictObject import DictObject
@@ -43,6 +43,10 @@ class MyTemplateEngine:
 		self.env.globals.update(denv)
 		if env:
 			self.env.globals.update(env)
+
+	def get_template_variables(tmpl):
+		parsed_content = self.env.parse(tmpl)
+		return meta.find_undeclared_variables(parsed_content)
 
 	def set(self,k,v):
 		self.env.globals.update({k:v})
