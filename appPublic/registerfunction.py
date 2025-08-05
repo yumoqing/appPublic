@@ -26,8 +26,7 @@ class RegisterFunction:
 			print(f'{name} is a coro')
 			return None
 		if f:
-			f1 = awaitify(f)
-			return f1(*args, **kw)
+			return f(*args, **kw)
 		error(f'{name} not register')
 
 	async def exe(self, name, *args, **kw):
@@ -38,7 +37,8 @@ class RegisterFunction:
 		if iscoroutinefunction(f):
 			# info(f'{name=} is coroutine function');
 			return await f(*args, **kw)
-		return f(*args, **kw)
+		f1 = awaitify(f)
+		return f1(*args, **kw)
 
 @SingletonDecorator
 class RegisterCoroutine:
