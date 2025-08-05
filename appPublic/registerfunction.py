@@ -2,6 +2,7 @@ import asyncio
 from inspect import isfunction, iscoroutinefunction
 from functools import partial
 from appPublic.dictObject import DictObject
+from appPublic.worker import awaitify
 from appPublic.Singleton import SingletonDecorator
 from appPublic.log import info, error
 
@@ -25,7 +26,8 @@ class RegisterFunction:
 			print(f'{name} is a coro')
 			return None
 		if f:
-			return f(*args, **kw)
+			f1 = awaitify(f)
+			return f1(*args, **kw)
 		error(f'{name} not register')
 
 	async def exe(self, name, *args, **kw):
