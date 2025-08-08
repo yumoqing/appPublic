@@ -2,6 +2,7 @@ import time
 import random
 import asyncio
 import inspect
+import concurrent
 from functools import wraps
 from functools import wraps
 
@@ -9,15 +10,15 @@ def awaitify(sync_func):
 	"""Wrap a synchronous callable to allow ``await``'ing it"""
 	@wraps(sync_func)
 	async def async_func(*args, **kw):
-		loop = asyncio.get_event_loop()
-		return await loop.run_in_executor(None, sync_func, *args, **kw)
-	return async_func
-
-def coroutinify(func):
-	@wraps(func)
-	async def async_func(*args):
-		loop = asyncio.get_event_loop()
-		return await loop.run_in_executor(None, func, *args)
+		loop = None
+		try:
+			loop = asyncio.get_event_loop()
+		except:
+			loop = asyncio.new_event_loop()
+		# Run the blocking generation in a background thread
+		with concurrent.futures.ThreadPoolExecutor() as pool:
+			return await loop.run_in_executor(pool, 
+								lambda:sync_func(*args, **kw))
 	return async_func
 
 def to_func(func):
