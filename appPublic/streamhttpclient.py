@@ -96,7 +96,7 @@ class StreamHttpClient:
 			):
 				yield chunk
 		except Exception as e:
-			debug(f"❌ Direct request failed: {e}")
+			debug(f"❌ Direct request failed: {e}, {headers=}, {data=},{params=}")
 			debug("🧦 Retrying with SOCKS5 proxy...")
 			try:
 				async for chunk in self._request_with_connector(
