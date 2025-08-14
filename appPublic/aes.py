@@ -13,14 +13,23 @@ def unpad(data: bytes) -> bytes:
 	unpadder = padding.PKCS7(128).unpadder()
 	return unpadder.update(data) + unpadder.finalize()
 
+def len32(key):
+	cnt = len(key)
+	if cnt < 32:
+		key += b'*' * (32 - cnt)
+	elif cnt > 32:
+		key = key[:32]
+	return key
+
 def aes_encrypt_ecb(key: bytes, plaintext: str) -> bytes:
-	
+	key = len32(key) 
 	cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
 	encryptor = cipher.encryptor()
 	padded_data = pad(plaintext.encode())
 	return encryptor.update(padded_data) + encryptor.finalize()
 
 def aes_decrypt_ecb(key: bytes, ciphertext: bytes) -> str:
+	key = len32(key) 
 	cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
 	decryptor = cipher.decryptor()
 	padded_plain = decryptor.update(ciphertext) + decryptor.finalize()
