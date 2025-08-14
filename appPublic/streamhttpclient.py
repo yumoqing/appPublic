@@ -76,29 +76,26 @@ class StreamHttpClient:
 		Makes an HTTP request and yields response chunks (streamed).
 		"""
 		use_socks = url in self.socks_urls
+		if use_socks:
+			debug(f"🔁 Using SOCKS5 directly for: {url}")
+			async for chunk in self._request_with_connector(
+				method, url,
+				headers=headers, params=params, data=data,
+				json=json, files=files,
+				use_socks=True, chunk_size=chunk_size, **kw
+			):
+				yield chunk
+			return
 		try:
-			if use_socks:
-				debug(f"🔁 Using SOCKS5 directly for: {url}")
-				async for chunk in self._request_with_connector(
-					method, url,
-					headers=headers, params=params, data=data,
-					json=json, files=files,
-					use_socks=True, chunk_size=chunk_size, **kw
-				):
-					yield chunk
-			else:
-				debug(f"🌐 Trying direct request: {url}")
-				async for chunk in self._request_with_connector(
-					method, url,
-					headers=headers, params=params, data=data,
-					json=json, files=files,
-					use_socks=False, chunk_size=chunk_size, **kw
-				):
-					yield chunk
+			debug(f"🌐 Trying direct request: {url}")
+			async for chunk in self._request_with_connector(
+				method, url,
+				headers=headers, params=params, data=data,
+				json=json, files=files,
+				use_socks=False, chunk_size=chunk_size, **kw
+			):
+				yield chunk
 		except Exception as e:
-			if use_socks:
-				exception(f"❌ SOCKS5 request failed: {e},{format_exc()}")
-				return
 			debug(f"❌ Direct request failed: {e}")
 			debug("🧦 Retrying with SOCKS5 proxy...")
 			try:
@@ -112,6 +109,7 @@ class StreamHttpClient:
 					yield chunk
 			except Exception as e2:
 				exception(f"❌ SOCKS5 request also failed: {e2},{format_exc()}")
+				raise e2
 
 	async def _request_with_connector(self, method, url,
 									  headers=None, params=None, data=None,
