@@ -1,7 +1,7 @@
 import os
 import re
 import base64
-from appPuyblic.uniqueID import getID
+from appPublic.uniqueID import getID
 
 MIME_EXT = {
 	# 图片
