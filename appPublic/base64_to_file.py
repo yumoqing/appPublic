@@ -36,7 +36,6 @@ MIME_EXT = {
 }
 
 def getFilenameFromBase64(base64String):
-	// Extract MIME type from data URL
 	mimeType = base64String.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/)
 	match = re.match(r"data:(.*?);base64,(.*)", base64String)
 	if not match:
