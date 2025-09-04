@@ -62,4 +62,4 @@ def base64_to_file(base64_string, output_path):
 	fp = os.path.join(output_path, fname)
     with open(fp, 'wb') as file:
         file.write(binary_data)
-
+	return fp
