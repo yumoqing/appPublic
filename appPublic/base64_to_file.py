@@ -2,7 +2,7 @@ import os
 import base64
 from appPuyblic.uniqueID import getID
 
-function getFilenameFromBase64(base64String) {
+def getFilenameFromBase64(base64String) {
 	// Extract MIME type from data URL
 	const mimeType = base64String.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/)
 	ext = ''
