@@ -44,7 +44,6 @@ def getFilenameFromBase64(base64String):
 	name = getID()
 	fname = f'{name}.{ext}'
 	return fname
-}
 
 def base64_to_file(base64_string, output_path):
 	# Remove data URL prefix if present (e.g., "data:image/png;base64,")
