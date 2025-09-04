@@ -2,13 +2,13 @@ import os
 import base64
 from appPuyblic.uniqueID import getID
 
-function getFileExtensionFromBase64(base64String) {
-    // Extract MIME type from data URL
-    const mimeType = base64String.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
-
-    if (mimeType && mimeType[1]) {
-        const mime = mimeType[1];
-        const mimeToExtension = {
+function getFilenameFromBase64(base64String) {
+	// Extract MIME type from data URL
+	const mimeType = base64String.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/)
+	ext = ''
+	if (mimeType && mimeType[1]) {
+		const mime = mimeType[1]
+		const mimeToExtension = {
 			# 图片
 			"image/jpeg": "jpg",
 			"image/png": "png",
@@ -38,28 +38,25 @@ function getFileExtensionFromBase64(base64String) {
 			"video/x-matroska": "mkv",
 			"video/3gpp": "3gp",
 			"video/x-flv": "flv",
-		};
+		}
 
-        return mimeToExtension.get(mime, '');
-    }
-
-    return '';
-}
-def base64_to_file(base64_string, output_path):
-    # Remove data URL prefix if present (e.g., "data:image/png;base64,")
-    if ',' in base64_string:
-        header, base64_data = base64_string.split(',', 1)
-    else:
-        base64_data = base64_string
-
-    # Decode Base64 string
-    binary_data = base64.b64decode(base64_data)
-    
-    # Write binary data to file
+		ext = mimeToExtension.get(mime, '')
+	}
 	name = getID()
-	ext = getFileExtensionFromBase64(base64_string)
 	fname = f'{name}{ext}'
-	fp = os.path.join(output_path, fname)
-    with open(fp, 'wb') as file:
-        file.write(binary_data)
-	return fp
+	return fname
+}
+
+def base64_to_file(base64_string, output_path):
+	# Remove data URL prefix if present (e.g., "data:image/png;base64,")
+	if ',' in base64_string:
+		header, base64_data = base64_string.split(',', 1)
+	else:
+		base64_data = base64_string
+
+	# Decode Base64 string
+	binary_data = base64.b64decode(base64_data)
+	
+	# Write binary data to file
+	with open(output_path, 'wb') as file:
+		file.write(binary_data)
