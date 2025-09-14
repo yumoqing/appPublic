@@ -2,6 +2,7 @@
 
 from traceback import format_exc
 import aiohttp
+from aiohttp import ClientConnectionError
 import asyncio
 from aiohttp_socks import ProxyConnector
 from pathlib import Path
@@ -95,7 +96,7 @@ class StreamHttpClient:
 				use_socks=False, chunk_size=chunk_size, **kw
 			):
 				yield chunk
-		except Exception as e:
+		except ClientConnectionError as e:
 			debug(f"❌ Direct request failed: {e}, {headers=}, {data=},{params=}")
 			debug("🧦 Retrying with SOCKS5 proxy...")
 			try:
@@ -110,6 +111,9 @@ class StreamHttpClient:
 			except Exception as e2:
 				exception(f"❌ SOCKS5 request also failed: {e2},{format_exc()}")
 				raise e2
+		except Exception as e:
+			debug(f"❌ request failed: {e}, {headers=}, {data=},{params=}")
+			raise e
 
 	async def _request_with_connector(self, method, url,
 									  headers=None, params=None, data=None,
