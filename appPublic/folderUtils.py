@@ -48,22 +48,22 @@ def timestamp2datatiemStr(ts):
 	
 """
 def findAllDrives():
-    Drives=[]
-    # print "Searching for drives..."
-    drives=win32api.GetLogicalDriveStrings().split(":")
-    for i in drives:
-        # print "i=",i,":"
-        dr=i[-1].lower()
-        if dr.isalpha():
-            dr+=":\\"
-            inf=None
-            try:
-                inf=win32api.GetVolumeInformation(dr)
-            except:
-                pass # Removable drive, not ready
-		     # You'll still get the drive letter, but inf will be None
-            Drives.append([dr,inf])
-    return Drives
+	Drives=[]
+	# print "Searching for drives..."
+	drives=win32api.GetLogicalDriveStrings().split(":")
+	for i in drives:
+		# print "i=",i,":"
+		dr=i[-1].lower()
+		if dr.isalpha():
+			dr+=":\\"
+			inf=None
+			try:
+				inf=win32api.GetVolumeInformation(dr)
+			except:
+				pass # Removable drive, not ready
+			 # You'll still get the drive letter, but inf will be None
+			Drives.append([dr,inf])
+	return Drives
 """
 
 ## list all folder name under folder named by path
@@ -77,19 +77,19 @@ def listFolder(path, rescursive=False) :
 			yield full_name
 
 def listFile(folder,suffixs=[],rescursive=False):
-    subffixs = [ i.lower() for i in suffixs ]
-    for f in os.listdir(folder):
-        p = os.path.join(folder,f)
-        if rescursive and os.path.isdir(p):
-            for p1 in listFile(p,suffixs=suffixs,rescursive=True):
-	            yield p1
-        if os.path.isfile(p):
-            e = p.lower()
-            if suffixs == [] :
-                yield p
-            for s in subffixs:
-                if e.endswith(s):
-                    yield p
+	subffixs = [ i.lower() for i in suffixs ]
+	for f in os.listdir(folder):
+		p = os.path.join(folder,f)
+		if rescursive and os.path.isdir(p):
+			for p1 in listFile(p,suffixs=suffixs,rescursive=True):
+				yield p1
+		if os.path.isfile(p):
+			e = p.lower()
+			if suffixs == [] :
+				yield p
+			for s in subffixs:
+				if e.endswith(s):
+					yield p
 
 def folderInfo(root,uri=''):
 	relpath = uri
@@ -137,23 +137,12 @@ def rmdir_recursive(dir):
 	os.rmdir(dir)
 
 def _mkdir(newdir) :
-    """works the way a good mkdir should :)
-        - already exists, silently complete
-        - regular file in the way, raise an exception
-        - parent directory(ies) does not exist, make them as well
-    """
-    if os.path.isdir(newdir):
-        pass
-    elif os.path.isfile(newdir):
-        raise OSError("a file with the same name as the desired " \
-                      "dir, '%s', already exists." % newdir)
-    else:
-        head, tail = os.path.split(newdir)
-        if head and not os.path.isdir(head):
-            _mkdir(head)
-        #print "_mkdir %s" % repr(newdir)
-        if tail:
-            os.mkdir(newdir)
+	"""works the way a good mkdir should :)
+		- already exists, silently complete
+		- regular file in the way, raise an exception
+		- parent directory(ies) does not exist, make them as well
+	"""
+	return os.makedirs(newdir, exist_ok=True)
 
 def _copyfile(fp,dir) :
 	fs = open(fp,'rb')
