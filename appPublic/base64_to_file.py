@@ -38,25 +38,25 @@ MIME_EXT = {
 import base64
 
 def hex2base64(hex_str, typ):
-    """
-    将十六进制字符串转换为 Base64 编码字符串。
-    
-    :param hex_str: 输入的十六进制字符串（可选带 0x 前缀）
-    :return: Base64 编码的字符串
-    """
-    # 移除 0x 前缀（如果存在）
-    if hex_str.startswith(('0x', '0X')):
-        hex_str = hex_str[2:]
-    
-    # 将 Hex 字符串转换为字节数据
-    bytes_data = bytes.fromhex(hex_str)
-    
-    # 编码为 Base64 并转为字符串
-    base64_str = base64.b64encode(bytes_data).decode('utf-8')
-    for k,v in MIME_EXT.items():
+	"""
+	将十六进制字符串转换为 Base64 编码字符串。
+	
+	:param hex_str: 输入的十六进制字符串（可选带 0x 前缀）
+	:return: Base64 编码的字符串
+	"""
+	# 移除 0x 前缀（如果存在）
+	if hex_str.startswith(('0x', '0X')):
+		hex_str = hex_str[2:]
+	
+	# 将 Hex 字符串转换为字节数据
+	bytes_data = bytes.fromhex(hex_str)
+	
+	# 编码为 Base64 并转为字符串
+	base64_str = base64.b64encode(bytes_data).decode('utf-8')
+	for k,v in MIME_EXT.items():
 		if v == typ:
 			base64_str = 'data:' + k + ';base64,' + base64_str
-    return base64_str
+	return base64_str
 	
 def getFilenameFromBase64(base64String):
 	match = re.match(r"data:(.*?);base64,(.*)", base64String)
