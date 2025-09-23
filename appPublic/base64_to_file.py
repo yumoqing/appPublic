@@ -60,11 +60,12 @@ def hex2base64(hex_str, typ):
 	
 def getFilenameFromBase64(base64String):
 	match = re.match(r"data:(.*?);base64,(.*)", base64String)
+	name = getID()
 	if not match:
-		raise ValueError("不是合法的 base64 Data URL")
+		# raise ValueError("不是合法的 base64 Data URL")
+		return name
 	mime_type, b64_data = match.groups()
 	ext = MIME_EXT.get(mime_type, mime_type.split("/")[-1])
-	name = getID()
 	fname = f'{name}.{ext}'
 	return fname
 
@@ -81,3 +82,5 @@ def base64_to_file(base64_string, output_path):
 	# Write binary data to file
 	with open(output_path, 'wb') as file:
 		file.write(binary_data)
+
+def base642file(base64string)
