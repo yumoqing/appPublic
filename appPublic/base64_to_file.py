@@ -83,4 +83,3 @@ def base64_to_file(base64_string, output_path):
 	with open(output_path, 'wb') as file:
 		file.write(binary_data)
 
-def base642file(base64string)
