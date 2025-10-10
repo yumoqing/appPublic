@@ -12,7 +12,7 @@ def isNone(obj):
 	return obj is None
 
 
-def string_template_render(tmp_string, data):
+def string_template_render(tmplstr, data):
 	te = MyTemplateEngine([])
 	return te.renders(tmplstr, data)
 
