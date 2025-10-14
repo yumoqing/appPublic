@@ -161,10 +161,10 @@ class StreamHttpClient:
 						yield chunk
 				except aiohttp.ClientResponseError as e:
 					txt = await response.text()
-					debug(f"❌ HTTP {response.status}: {response.reason}, {txt}")
+					debug(f"❌ HTTP {method}, {url}, {response.status}: {response.reason}, {txt}")
 					raise e
 				except Exception as e:
-					debug(f"❌ HTTP {response.status}: {response.reason}")
+					debug(f"❌ HTTP {method}, {url}, {response.status}: {response.reason}")
 					raise e
 
 if __name__ == '__main__':
