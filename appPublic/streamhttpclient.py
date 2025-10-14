@@ -155,9 +155,16 @@ class StreamHttpClient:
 					req_args["data"] = data
 
 			async with session.request(method, url, **req_args) as response:
-				response.raise_for_status()
-				async for chunk in response.content.iter_chunked(chunk_size):
-					yield chunk
+				try:
+					response.raise_for_status()
+					async for chunk in response.content.iter_chunked(chunk_size):
+						yield chunk
+				except aiohttp.ClientResponseError as e:
+					debug(f'❌ HTTP {response.status}: {response.reason}, {response.text()}"
+					raise e
+				except Exception as e:
+					debug(f'❌ HTTP {response.status}: {response.reason}"
+					raise e
 
 if __name__ == '__main__':
 	import asyncio

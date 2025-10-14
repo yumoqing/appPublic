@@ -17,7 +17,7 @@ def string_template_render(tmplstr, data):
 	return te.renders(tmplstr, data)
 
 class MyTemplateEngine:
-	def __init__(self,pathList,file_coding='utf-8',out_coding='utf-8', env={}):
+	def __init__(self,pathList,file_coding='utf-8',out_coding='utf-8', env={}, enable_async=False):
 		self.file_coding = file_coding
 		self.out_coding = out_coding
 		loader = FileSystemLoader(pathList, encoding=self.file_coding)
