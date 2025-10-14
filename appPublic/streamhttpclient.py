@@ -160,7 +160,8 @@ class StreamHttpClient:
 					async for chunk in response.content.iter_chunked(chunk_size):
 						yield chunk
 				except aiohttp.ClientResponseError as e:
-					debug(f"❌ HTTP {response.status}: {response.reason}, {response.text()}")
+					txt = await response.text()
+					debug(f"❌ HTTP {response.status}: {response.reason}, {txt}")
 					raise e
 				except Exception as e:
 					debug(f"❌ HTTP {response.status}: {response.reason}")
