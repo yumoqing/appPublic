@@ -2,7 +2,8 @@
 
 from traceback import format_exc
 import aiohttp
-from aiohttp import ClientConnectionError, TimeoutError
+from aiohttp import ClientConnectionError
+from asyncio import TimeoutError
 import asyncio
 from aiohttp_socks import ProxyConnector
 from pathlib import Path
