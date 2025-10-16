@@ -2,7 +2,7 @@
 
 from traceback import format_exc
 import aiohttp
-from aiohttp import ClientConnectionError
+from aiohttp import ClientConnectionError, TimeoutError
 import asyncio
 from aiohttp_socks import ProxyConnector
 from pathlib import Path
@@ -96,6 +96,21 @@ class StreamHttpClient:
 				use_socks=False, chunk_size=chunk_size, **kw
 			):
 				yield chunk
+		except TimeoutError as e:
+			debug(f"❌ Direct request failed: {e}, {headers=}, {data=},{params=}")
+			debug("🧦 Retrying with SOCKS5 proxy...")
+			try:
+				async for chunk in self._request_with_connector(
+					method, url,
+					headers=headers, params=params, data=data,
+					json=json, files=files,
+					use_socks=True, chunk_size=chunk_size, **kw
+				):
+					self._save_socks_url(url)
+					yield chunk
+			except Exception as e2:
+				exception(f"❌ SOCKS5 request also failed: {e2},{format_exc()}")
+				raise e2
 		except ClientConnectionError as e:
 			debug(f"❌ Direct request failed: {e}, {headers=}, {data=},{params=}")
 			debug("🧦 Retrying with SOCKS5 proxy...")
