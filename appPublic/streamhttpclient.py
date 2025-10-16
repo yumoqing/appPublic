@@ -41,13 +41,13 @@ class StreamHttpClient:
 
 	def _load_socks_urls(self):
 		if self.socks_urls_file.exists():
-			return [line.strip() for line in self.socks_url_file.read_text().splitlines() if line.strip()]
+			return [line.strip() for line in self.socks_urls_file.read_text().splitlines() if line.strip()]
 		return []
 
 	def _save_socks_url(self, url):
 		if url not in self.socks_urls:
 			self.socks_urls.add(url)
-			with self.socks_url_file.open("a") as f:
+			with self.socks_urls_file.open("a") as f:
 				f.write(url + "\n")
 
 	async def request(self, method, url, *,
