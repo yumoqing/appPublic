@@ -11,7 +11,7 @@ def get_event_loop():
 		return asyncio.get_runnung_loop()
 	except:
 		loop = asyncio.new_event_loop()
-		asyncio.set_event_loop()
+		asyncio.set_event_loop(loop)
 		return loop
 
 def awaitify(sync_func):
