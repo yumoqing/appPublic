@@ -6,6 +6,14 @@ import concurrent
 from functools import wraps
 from functools import wraps
 
+def get_event_loop():
+	try:
+		return asyncio.get_runnung_loop()
+	except:
+		loop = asyncio.new_event_loop()
+		asyncio.set_event_loop()
+		return loop
+
 def awaitify(sync_func):
 	"""Wrap a synchronous callable to allow ``await``'ing it"""
 	@wraps(sync_func)
