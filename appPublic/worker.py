@@ -6,6 +6,29 @@ import concurrent
 from functools import wraps
 from functools import wraps
 
+def schedule_once(seconds, coro, *args, **kw):
+	loop = asyncio.get_running_loop()
+	if inspect.iscoroutinefunction(coro):
+		print(f'{coro} is a coroutine')
+		x = loop.call_later(seconds, lambda: asyncio.create_task(coro(*args, **kw)))
+	else:
+		print(f'{coro} is a normal function')
+		x = loop.call_later(seconds, coro, *args, **kw)
+	return x
+
+def schedule_interval(seconds, coro, *args, **kw):
+	loop = asyncio.get_running_loop()
+	"""在 asyncio 中实现 call_interval"""
+	def wrapper():
+		if inspect.iscoroutinefunction(coro):
+			loop.create_task(coro(*args, **kw))
+		else:
+			coro(*args, **kw)
+		return loop.call_later(seconds, wrapper)
+
+	handle = loop.call_later(seconds, wrapper)
+	return handle
+
 def get_event_loop():
 	try:
 		return asyncio.get_runnung_loop()
@@ -78,6 +101,6 @@ if __name__ == '__main__':
 		await asyncio.wait(g)
 		print('aaaaaaaaaaaaaaaaaaa')
 
-	loop = asyncio.get_event_loop()
+	loop = get_event_loop()
 	loop.run_until_complete(run())
 	
