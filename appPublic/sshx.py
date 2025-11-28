@@ -11,12 +11,12 @@ from appPublic.log import debug, exception
 import asyncio, asyncssh, sys
 
 class SSHServer:
-	def __init__(self, server, jumpservers=[]):
+	def __init__(self, server):
 		self.server = server
-		self.jumpservers = jumpservers
-		if not jumpservers:
-			if server.get('jumpservers'):
-				self.jumpservers = server['jumpservers']
+		if server.get('jumpservers'):
+			self.jumpservers = server['jumpservers']
+		else:
+			slef.jumpservers = []
 
 	async def _connect_server(self, server, refconn=None):
 		f = asyncssh.connect
