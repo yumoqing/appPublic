@@ -72,8 +72,9 @@ def listFolder(path, rescursive=False) :
 	for name in os.listdir(path) :
 		full_name = os.path.join(path,name)
 		if os.path.isdir(full_name):
-			for f in listFolder(full_name, rescursive=rescursive):
-				yield f
+			if rescursive:
+				for f in listFolder(full_name, rescursive=rescursive):
+					yield f
 			yield full_name
 
 def listFile(folder,suffixs=[],rescursive=False):
