@@ -3,8 +3,7 @@ import random
 import asyncio
 import inspect
 import concurrent
-from functools import wraps
-from functools import wraps
+from functools import wraps, partial
 
 def schedule_once(seconds, coro, *args, **kw):
 	loop = asyncio.get_running_loop()
@@ -82,7 +81,7 @@ class AsyncWorker:
 			return stdout, stderr
 
 if __name__ == '__main__':
-	def hello(cnt,greeting):
+	def hello(cnt,greeting='how are you'):
 		t = random.randint(1,10)
 		print(cnt,'will sleep ',t,'seconds')
 		time.sleep(t)
@@ -97,7 +96,7 @@ if __name__ == '__main__':
 	async def run():
 		w = AsyncWorker()
 		f = awaitify(hello)
-		g = [ asyncio.create_task(w(f,i,'hello world')) for i in range(100) ]
+		g = [ asyncio.create_task(w(f,i,greeting='hello world')) for i in range(100) ]
 		await asyncio.wait(g)
 		print('aaaaaaaaaaaaaaaaaaa')
 
