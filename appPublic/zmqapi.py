@@ -7,12 +7,10 @@ import zmq
 import zmq.asyncio
 import json
 
-import asyncio
-import zmq
 from zmq.asyncio import Context
 from zmq.utils.monitor import parse_monitor_message
 
-async def zmq_subcriber(special_key: str, zmq_url='tcp://127.0.0.1:5555', callback=None):
+async def zmq_subcribe(special_key: str, zmq_url='tcp://127.0.0.1:5555', callback=None):
 	ctx = Context()
 	sock = ctx.socket(zmq.SUB)
 	sock.connect(zmq_url)
