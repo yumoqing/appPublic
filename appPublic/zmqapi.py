@@ -15,27 +15,27 @@ async def run_proxy():
 	config = getConfig()
 	subscribe_url = config.subscribe_url or 'tcp://127.0.0.1:5556'
 	publish_url = config.publish_url or 'tcp://127.0.0.1:5555'
-    ctx = zmq.asyncio.Context()
+	ctx = zmq.asyncio.Context()
 
-    # 1. 面对 Publisher 的前端 (XSUB)
-    frontend = ctx.socket(zmq.XSUB)
-    frontend.bind(publish_url)  # 发布者往这里 connect
+	# 1. 面对 Publisher 的前端 (XSUB)
+	frontend = ctx.socket(zmq.XSUB)
+	frontend.bind(publish_url)  # 发布者往这里 connect
 
-    # 2. 面对 Subscriber 的后端 (XPUB)
-    backend = ctx.socket(zmq.XPUB)
-    backend.bind(subscribe_url)   # 订阅者往这里 connect
+	# 2. 面对 Subscriber 的后端 (XPUB)
+	backend = ctx.socket(zmq.XPUB)
+	backend.bind(subscribe_url)   # 订阅者往这里 connect
 
-    print(f"【Proxy】启动：Pub 连 {publish_url}，Sub 连 {subscribe_url}")
-    # 核心：启动内置代理，它会自动把 frontend 接收的消息广播给 backend
-    # 并且把 backend 的订阅信息同步给 frontend
-    try:
-        await awaitify(zmq.proxy)(frontend, backend)
-    except Exception as e:
-        print(f"Proxy 异常退出: {e}")
-    finally:
-        frontend.close()
-        backend.close()
-        ctx.term()
+	print(f"【Proxy】启动：Pub 连 {publish_url}，Sub 连 {subscribe_url}")
+	# 核心：启动内置代理，它会自动把 frontend 接收的消息广播给 backend
+	# 并且把 backend 的订阅信息同步给 frontend
+	try:
+		await awaitify(zmq.proxy)(frontend, backend)
+	except Exception as e:
+		print(f"Proxy 异常退出: {e}")
+	finally:
+		frontend.close()
+		backend.close()
+		ctx.term()
 
 async def zmq_subcribe(special_key: str, callback=None):
 	config = getConfig()
