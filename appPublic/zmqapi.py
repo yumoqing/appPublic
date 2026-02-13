@@ -9,10 +9,12 @@ from .worker import awaitify
 
 from zmq.asyncio import Context
 from zmq.utils.monitor import parse_monitor_message
+from appPublic.jsonConfig import getConfig
 
-async def run_proxy(subscribe_url='tcp://127.0.0.1:5556',
-					publish_url='tcp://127.0.0.1:5555'):
-
+async def run_proxy():
+	config = getConfig()
+	subscribe_url = config.subscribe_url or 'tcp://127.0.0.1:5556'
+	publish_url = config.publish_url or 'tcp://127.0.0.1:5555'
     ctx = zmq.asyncio.Context()
 
     # 1. 面对 Publisher 的前端 (XSUB)
@@ -36,7 +38,9 @@ async def run_proxy(subscribe_url='tcp://127.0.0.1:5556',
         backend.close()
         ctx.term()
 
-async def zmq_subcribe(special_key: str, subscribe_url='tcp://127.0.0.1:5556', callback=None):
+async def zmq_subcribe(special_key: str, callback=None):
+	config = getConfig()
+	subscribe_url = config.subscribe_url or 'tcp://127.0.0.1:5556'
 	ctx = Context()
 	sock = ctx.socket(zmq.SUB)
 	sock.connect(subscribe_url)
@@ -64,7 +68,9 @@ async def zmq_subcribe(special_key: str, subscribe_url='tcp://127.0.0.1:5556', c
 		ctx.term()
 	return content
 
-async def zmq_publish(key, content, publish_url='tcp://127.0.0.1:5555'):
+async def zmq_publish(key, content):
+	config = getConfig()
+	publish_url = config.publish_url or 'tcp://127.0.0.1:5555'
 	ctx = Context()
 	sock = ctx.socket(zmq.PUB)
 	sock.setsockopt(zmq.LINGER, 1000)
