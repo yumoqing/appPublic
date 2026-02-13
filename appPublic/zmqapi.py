@@ -41,9 +41,8 @@ async def zmq_subcribe(special_key: str, zmq_url='tcp://127.0.0.1:5555', callbac
 async def zmq_publish(key, content, zmq_url='tcp://127.0.0.1:5555'):
 	ctx = Context()
 	sock = ctx.socket(zmq.PUB)
-	monitor = sock.get_monitor_socket()
-	sock.bind(zmq_url)
 	sock.setsockopt(zmq.LINGER, 1000)
+	sock.bind(zmq_url)
 	await sock.send_multipart([key.encode(), content.encode()])
 	sock.close()
 	ctx.term()
