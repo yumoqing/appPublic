@@ -25,8 +25,7 @@ async def run_proxy():
     backend = ctx.socket(zmq.XPUB)
     backend.bind(subscribe_url)   # 订阅者往这里 connect
 
-    print("【Proxy】启动：Pub 连 5555，Sub 连 5556")
-
+    print(f"【Proxy】启动：Pub 连 {publish_url}，Sub 连 {subscribe_url}")
     # 核心：启动内置代理，它会自动把 frontend 接收的消息广播给 backend
     # 并且把 backend 的订阅信息同步给 frontend
     try:
