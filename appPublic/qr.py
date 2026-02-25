@@ -1,7 +1,7 @@
 import qrcode
 
 def gen_qr(data, path):
-	qr = =qrcode.QRCode(
+	qr = qrcode.QRCode(
 		version=1,            # 控制二维码大小（1~40）
 		error_correction=qrcode.constants.ERROR_CORRECT_L,  # 容错率 L(7%)、M(15%)、Q(25%)、H(30%)
 		box_size=10,          # 每个格子的像素大小
