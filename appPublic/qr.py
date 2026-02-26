@@ -31,7 +31,6 @@ def gen_qr_withlogo(data, path, logopath=None, logoloc='cc'):
 		box_size=10,
 		border=4,
 	)
-	data = "https://www.example.com"
 	qr.add_data(data)
 	qr.make(fit=True)
 
