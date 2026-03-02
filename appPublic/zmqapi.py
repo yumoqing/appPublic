@@ -55,8 +55,11 @@ async def zmq_subcribe(special_key: str, callback=None):
 	try:
 		while True:
 			# 接收消息（multipart 格式，第一部分是 key，第二部分是内容）
-			debug('## RECEIVING message on {special_key}')
+			if callback:
+				debug(f'## RECEIVING message on {special_key}')
 			msg = await sock.recv_multipart()
+			if callback:
+				debug(f'## RECEIVED message on {special_key}:{msg}')
 			key = msg[0].decode()
 			content = msg[1].decode()
 			# print(f"【服务端】匹配成功！Key: {key}, 内容: {content}")
