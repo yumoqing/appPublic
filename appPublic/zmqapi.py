@@ -17,10 +17,12 @@ async def run_proxy():
 	subscribe_url = config.subscribe_url or 'tcp://127.0.0.1:5556'
 	publish_url = config.publish_url or 'tcp://127.0.0.1:5555'
 	ctx = zmq.asyncio.Context()
+	debug(f"【Proxy】启动：Pub 连 {publish_url}，Sub 连 {subscribe_url}")
 
 	# 1. 面对 Publisher 的前端 (XSUB)
 	frontend = ctx.socket(zmq.XSUB)
 	frontend.bind(publish_url)  # 发布者往这里 connect
+	debug(f"【Proxy】启动：Pub 连 {publish_url}，Sub 连 {subscribe_url}")
 
 	# 2. 面对 Subscriber 的后端 (XPUB)
 	backend = ctx.socket(zmq.XPUB)
