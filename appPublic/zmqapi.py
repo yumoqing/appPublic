@@ -32,7 +32,7 @@ async def run_proxy():
 	try:
 		await awaitify(zmq.proxy)(frontend, backend)
 	except Exception as e:
-		exception(f"Proxy 异常退出: {e}{format_exc()")
+		exception(f"Proxy 异常退出: {e}{format_exc()}")
 	finally:
 		frontend.close()
 		backend.close()
