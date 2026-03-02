@@ -75,7 +75,7 @@ async def zmq_subcribe(special_key: str, callback=None):
 		exception(f'Cancelled .......')
 		pass
 	except Exception as e:
-		exception(f'{e}\n{format_exc()}'
+		exception(f'{e}\n{format_exc()}')
 	finally:
 		sock.close()
 		ctx.term()
