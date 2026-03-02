@@ -1,4 +1,4 @@
-
+from traceback import format_exc
 import asyncio
 from collections.abc import Coroutine
 
@@ -10,6 +10,7 @@ from .worker import awaitify
 from zmq.asyncio import Context
 from zmq.utils.monitor import parse_monitor_message
 from appPublic.jsonConfig import getConfig
+from appPublic.log import exception
 
 async def run_proxy():
 	config = getConfig()
@@ -59,7 +60,11 @@ async def zmq_subcribe(special_key: str, callback=None):
 			# print(f"【服务端】匹配成功！Key: {key}, 内容: {content}")
 			if callback is None:
 				break
-			await callback(content)
+			try:
+				await callback(content)
+			except Exception as e:
+				exception(f'{e}\n{format_exc()}')
+
 	except asyncio.CancelledError:
 		pass
 	finally:
