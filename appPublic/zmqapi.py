@@ -54,7 +54,7 @@ async def zmq_subscribe(special_key: str, callback=None):
 
 		# 设置过滤：只接收以 special_key 开头的消息
 		sock.setsockopt_string(zmq.SUBSCRIBE, special_key)
-		if calback:
+		if callback:
 			debug(f"【服务端】启动，仅等待 Key 为 '{special_key}' 的消息...")
 
 		while True:
