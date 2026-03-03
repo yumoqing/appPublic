@@ -44,6 +44,8 @@ async def run_proxy():
 async def zmq_subcribe(special_key: str, callback=None):
 	content = ''
 	try:
+		if callback:
+			debug(f"**【服务端】启动，仅等待 Key 为 '{special_key}' 的消息...")
 		config = getConfig()
 		subscribe_url = config.subscribe_url or 'tcp://127.0.0.1:5556'
 		ctx = Context()
@@ -52,7 +54,8 @@ async def zmq_subcribe(special_key: str, callback=None):
 
 		# 设置过滤：只接收以 special_key 开头的消息
 		sock.setsockopt_string(zmq.SUBSCRIBE, special_key)
-		debug(f"【服务端】启动，仅等待 Key 为 '{special_key}' 的消息...")
+		if calback:
+			debug(f"【服务端】启动，仅等待 Key 为 '{special_key}' 的消息...")
 
 		while True:
 			# 接收消息（multipart 格式，第一部分是 key，第二部分是内容）
@@ -63,7 +66,8 @@ async def zmq_subcribe(special_key: str, callback=None):
 				debug(f'## RECEIVED message on {special_key}:{msg}')
 			key = msg[0].decode()
 			content = msg[1].decode()
-			# print(f"【服务端】匹配成功！Key: {key}, 内容: {content}")
+			if callback:
+				debug(f"【服务端】匹配成功！Key: {key}, 内容: {content}")
 			if callback is None:
 				break
 			try:
@@ -79,6 +83,8 @@ async def zmq_subcribe(special_key: str, callback=None):
 	finally:
 		sock.close()
 		ctx.term()
+	if callback:
+		exception(f'意外推出 .......')
 	return content
 
 async def zmq_publish(key, content):
