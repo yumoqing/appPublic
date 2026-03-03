@@ -41,7 +41,7 @@ async def run_proxy():
 		ctx.term()
 	debug('run_proxy stopped...........')
 
-async def zmq_subcribe(special_key: str, callback=None):
+async def zmq_subscribe(special_key: str, callback=None):
 	content = ''
 	try:
 		if callback:
