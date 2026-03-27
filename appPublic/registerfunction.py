@@ -17,6 +17,10 @@ class RegisterFunction:
 			return
 		self.registKW[name] = func
 	
+	def delete(self, name):
+		x = {k:v for k,v in self.registKW.items() if k != name}
+		self.registKW = x
+	
 	def get(self,name):
 		return self.registKW.get(name,None)
 	
