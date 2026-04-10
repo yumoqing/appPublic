@@ -10,7 +10,7 @@ def my_function():
     caller_frame = frame_info.f_back
     file_name = inspect.getframeinfo(caller_frame).filename
     line_number = inspect.getframeinfo(caller_frame).lineno
-    print(f"Called from file: {file_name}, line: {line_number}")
+    # print(f"Called from file: {file_name}, line: {line_number}")
 
 
 @SingletonDecorator
@@ -49,7 +49,7 @@ class MyLogger:
 		lineno = inspect.getframeinfo(caller_frame).lineno
 		level = self.levels.get(levelname)
 		if level > self.level:
-			print(f'{level=},{self.level=}')
+			# print(f'{level=},{self.level=}')
 			return
 		data = {
 			'timestamp':timestampstr(),
