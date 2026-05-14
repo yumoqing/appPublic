@@ -146,7 +146,7 @@ def firstSunday(dt):
 		return dt + timedelta(7 - f)
 	return dt
 
-DTFORMAT = '%Y-%m-%d %H%M%S'
+DTFORMAT = '%Y-%m-%d %H:%M:%S'
 def getCurrentTimeStamp() :
 	t = time.localtime()
 	return TimeStamp(t)
