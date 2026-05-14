@@ -168,18 +168,18 @@ def StepedTimestamp(baseTs,ts,step) :
 def timestampAdd(ts1,ts2) :
 	t1 = time.strptime(ts1,DTFORMAT)
 	tf = time.mktime(t1)
-	if type(ts2)=='' :
+    if isinstance(ts2, str):
 		t2 = time.strptime(ts2,DTFORMAT)
 		ts2 = time.mktime(t2)
 	tf += ts2
-	t = time.localtime(tf)
-	return TimeStamp(t)
+	return tf
 
 def timestampSub(ts1,ts2) :
 	t1 = time.strptime(ts1,DTFORMAT)
-	t2 = time.strptime(ts2,DTFORMAT)
+    if isinstance(ts2, str):
+        t2 = time.strptime(ts2,DTFORMAT)
 	ret = time.mktime(t1) - time.mktime(t2)
-	return int(ret)
+	return ret
 
 def timestamp2dt(t):
 	return datetime.fromtimestamp(t)
