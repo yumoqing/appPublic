@@ -150,7 +150,7 @@ class EventDispatcher:
 			)
 
 			if self.log_traceback:
-				debug(f'{trackback.format_exc()}')
+				debug(f'{traceback.format_exc()}')
 				# traceback.print_exc()
 
 			await self._run_error_handler(
