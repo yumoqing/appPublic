@@ -1,5 +1,7 @@
 import sys
 import codecs
+import threading
+import queue
 from traceback import format_exc
 from appPublic.timeUtils import timestampstr
 from appPublic.Singleton import SingletonDecorator
@@ -10,7 +12,6 @@ def my_function():
     caller_frame = frame_info.f_back
     file_name = inspect.getframeinfo(caller_frame).filename
     line_number = inspect.getframeinfo(caller_frame).lineno
-    # print(f"Called from file: {file_name}, line: {line_number}")
 
 
 @SingletonDecorator
@@ -30,41 +31,80 @@ class MyLogger:
 		self.levelname = levelname
 		self.level = self.levels.get(levelname)
 		self.logfile = logfile
-	
-	def open_logger(self):
+		self.logger = None
+		# Async write queue + background thread
+		self._q = queue.Queue(maxsize=10000)
+		self._worker = threading.Thread(target=self._write_loop, daemon=True)
+		self._worker.start()
+
+	def _get_logger(self):
+		"""Lazy open file handle, keep it open."""
+		if self.logger is not None:
+			return self.logger
 		if self.logfile:
 			self.logger = codecs.open(self.logfile, 'a', 'utf-8')
 		else:
 			self.logger = sys.stdout
-	
-	def close_logger(self):
-		if self.logfile:
-			self.logger.close();
-			self.logger = None
-		self.logger = None
-	
+		return self.logger
+
+	def _write_loop(self):
+		"""Background thread: drain queue and write to file."""
+		fh = None
+		while True:
+			try:
+				item = self._q.get(timeout=1.0)
+				if item is None:
+					# Poison pill: shut down
+					if fh is not None:
+						try:
+							fh.flush()
+							if fh is not sys.stdout:
+								fh.close()
+						except Exception:
+							pass
+					break
+				if fh is None:
+					fh = self._get_logger()
+				fh.write(item)
+				# Only flush on critical/exception to avoid blocking on slow disks
+				if item.find('[exception]') >= 0 or item.find('[critical]') >= 0:
+					fh.flush()
+			except queue.Empty:
+				# Periodic flush to prevent data loss on crash
+				if fh is not None:
+					try:
+						fh.flush()
+					except Exception:
+						pass
+			except Exception:
+				pass
+
 	def log(self, levelname, message, frame_info):
 		caller_frame = frame_info.f_back
 		filename = inspect.getframeinfo(caller_frame).filename
 		lineno = inspect.getframeinfo(caller_frame).lineno
 		level = self.levels.get(levelname)
 		if level > self.level:
-			# print(f'{level=},{self.level=}')
 			return
 		data = {
-			'timestamp':timestampstr(),
-			'name':self.name,
-			'levelname':levelname,
-			'message':message,
-			'filename':filename,
-			'lineno':lineno
+			'timestamp': timestampstr(),
+			'name': self.name,
+			'levelname': levelname,
+			'message': message,
+			'filename': filename,
+			'lineno': lineno
 		}
-		self.open_logger()
 		s = self.formater % data
-		self.logger.write(s)
-		self.logger.flush()
-		self.close_logger()
-	
+		try:
+			self._q.put_nowait(s)
+		except queue.Full:
+			# Queue full: drop oldest (non-blocking, never stall the event loop)
+			try:
+				self._q.get_nowait()
+				self._q.put_nowait(s)
+			except Exception:
+				pass
+
 def clientinfo(message):
 	frame_info = inspect.currentframe()
 	logger = MyLogger('Test')
@@ -97,8 +137,7 @@ def critical(message):
 
 def exception(message):
 	frame_info = inspect.currentframe()
-	tb_msg =  format_exc()
+	tb_msg = format_exc()
 	msg = f'{message}\n{tb_msg}'
 	logger = MyLogger('exception')
 	logger.log('exception', msg, frame_info)
-
