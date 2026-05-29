@@ -104,6 +104,24 @@ class MyLogger:
 				self._q.put_nowait(s)
 			except Exception:
 				pass
+	
+def debug_params(name, d, maxlen=100):
+    """Compact debug output: show all keys but truncate long values."""
+    if not isinstance(d, dict):
+        debug(f'{name}: {d}')
+        return
+    summary = {}
+    for k, v in d.items():
+        s = str(v)
+        if len(s) > maxlen:
+            summary[k] = s[:maxlen] + f'...({len(s)}ch)'
+        elif isinstance(v, list) and len(v) > 3:
+            summary[k] = f'[{len(v)} items]'
+        else:
+            summary[k] = v
+    debug(f'{name}: {summary}')
+
+
 
 def clientinfo(message):
 	frame_info = inspect.currentframe()
