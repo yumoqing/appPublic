@@ -1,3 +1,4 @@
+import os
 import sys
 import codecs
 import threading
@@ -63,6 +64,15 @@ class MyLogger:
 						except Exception:
 							pass
 					break
+				# Detect log rotation: if file was moved/renamed, reopen
+				if fh is not None and self.logfile and not os.path.exists(self.logfile):
+					try:
+						fh.flush()
+						fh.close()
+					except Exception:
+						pass
+					fh = None
+					self.logger = None
 				if fh is None:
 					fh = self._get_logger()
 				fh.write(item)
