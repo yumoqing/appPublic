@@ -75,10 +75,12 @@ class MyLogger:
 					self.logger = None
 				if fh is None:
 					fh = self._get_logger()
+				item = item[:4096]
 				fh.write(item)
+				fh.flush()
 				# Only flush on critical/exception to avoid blocking on slow disks
-				if item.find('[exception]') >= 0 or item.find('[critical]') >= 0:
-					fh.flush()
+				#if item.find('[exception]') >= 0 or item.find('[critical]') >= 0:
+				#	fh.flush()
 			except queue.Empty:
 				# Periodic flush to prevent data loss on crash
 				if fh is not None:
