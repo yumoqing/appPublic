@@ -13,6 +13,15 @@ import os
 from appPublic.log import exception, debug
 
 use_socks5i_proxy=True
+
+# Shared SSL context to avoid recreating on every client instance
+_SHARED_SSL_CONTEXT = None
+
+def _get_shared_ssl_context():
+    global _SHARED_SSL_CONTEXT
+    if _SHARED_SSL_CONTEXT is None:
+        _SHARED_SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
+    return _SHARED_SSL_CONTEXT
 def set_use_socks5(use_or_not):
 	global use_socks5_proxy
 	use_socks5_proxy = use_or_not
@@ -42,7 +51,7 @@ class StreamHttpClient:
 		self.socks_urls_file = Path(f'{home}/.socksurls.txt')
 		self.socks5_url = socks5_url
 		self.socks_urls = set(self._load_socks_urls())
-		self.ssl_context = ssl.create_default_context(cafile=certifi.where())
+		self.ssl_context = _get_shared_ssl_context()
 
 	def _load_socks_urls(self):
 		if self.socks_urls_file.exists():
