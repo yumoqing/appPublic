@@ -12,6 +12,11 @@ import ssl
 import os
 from appPublic.log import exception, debug
 
+use_socks5i_proxy=True
+def set_use_socks5(use_or_not):
+	global use_socks5_proxy
+	use_socks5_proxy = use_or_not
+
 async def liner(async_gen):
 	remainer = b''
 	async for chunk in async_gen:
@@ -78,7 +83,7 @@ class StreamHttpClient:
 		Makes an HTTP request and yields response chunks (streamed).
 		"""
 		use_socks = url in self.socks_urls
-		if use_socks:
+		if use_socks and use_socks5_proxy:
 			debug(f"🔁 Using SOCKS5 directly for: {url}")
 			async for chunk in self._request_with_connector(
 				method, url,
@@ -99,6 +104,8 @@ class StreamHttpClient:
 				yield chunk
 		except TimeoutError as e:
 			debug(f"❌ Direct request failed: {e}, {headers=}, {data=},{params=}")
+			if not use_socks5_proxy:
+				raise e
 			debug("🧦 Retrying with SOCKS5 proxy...")
 			try:
 				async for chunk in self._request_with_connector(
@@ -114,6 +121,8 @@ class StreamHttpClient:
 				raise e2
 		except ClientConnectionError as e:
 			debug(f"❌ Direct request failed: {e}, {headers=}, {data=},{params=}")
+			if not use_socks5_proxy:
+				raise e
 			debug("🧦 Retrying with SOCKS5 proxy...")
 			try:
 				async for chunk in self._request_with_connector(
