@@ -12,7 +12,7 @@ import ssl
 import os
 from appPublic.log import exception, debug
 
-use_socks5i_proxy=True
+use_socks5_proxy=True
 
 # Shared SSL context to avoid recreating on every client instance
 _SHARED_SSL_CONTEXT = None
